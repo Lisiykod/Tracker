@@ -9,12 +9,15 @@ import UIKit
 
 extension UIView {
     // добавляем сабвью
-    func addSubview(_ subviews: [UIView]) {
-        subviews.forEach {addSubview($0)}
+    func addSubviews(_ subviews: [UIView]) {
+        subviews.forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            addSubview($0)
+        }
     }
     
     // привязываем границы к родительской View
-    @discardableResult func edgesTOSuperview() -> Self {
+    @discardableResult func edgesToSuperview() -> Self {
         guard let superview else {
             fatalError("View is not in the hierarchy")
         }
