@@ -27,8 +27,15 @@ final class TabBarViewController: UITabBarController {
             image: UIImage(named: "statistics_tabBar_icon"),
             selectedImage: nil)
         
+    
         let navigationTrackers = UINavigationController(rootViewController: trackers)
         let navigationStatistics = UINavigationController(rootViewController: statistics)
+        
+        trackers.navigationItem.title = "Трекеры"
+        statistics.navigationItem.title = "Статистика"
+        
+        navigationTrackers.navigationBar.prefersLargeTitles = true
+        navigationStatistics.navigationBar.prefersLargeTitles = true
         
         viewControllers = [navigationTrackers, navigationStatistics]
     }
