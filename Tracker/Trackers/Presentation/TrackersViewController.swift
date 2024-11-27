@@ -29,6 +29,7 @@ final class TrackersViewController: UIViewController {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.text = "Что будем отслеживать?"
+        label.textColor = .ypBlack
         return label
     }()
     
@@ -48,7 +49,6 @@ final class TrackersViewController: UIViewController {
         setupViews()
         setupNavigationBar()
         setupConstraints()
-        
     }
     
     // MARK: - Private methods
@@ -62,7 +62,8 @@ final class TrackersViewController: UIViewController {
                 emptyTrackersImage.heightAnchor.constraint(equalToConstant: 80),
                 emptyTrackersImage.widthAnchor.constraint(equalToConstant: 80),
                 emptyImageTrackersStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                emptyImageTrackersStackView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor)
+                emptyImageTrackersStackView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
+                datePicker.widthAnchor.constraint(equalToConstant: 100)
             ])
     }
     
