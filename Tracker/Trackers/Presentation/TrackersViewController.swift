@@ -9,12 +9,15 @@ import UIKit
 
 final class TrackersViewController: UIViewController {
     
+    private var categories: [TrackerCategory] = []
+    private var completedTrackers: [TrackerRecord] = []
+    
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
         datePicker.locale = Locale(identifier: "ru_RU")
-        datePicker.addTarget(self, action: #selector(datePickerValueChanged), for: .valueChanged)
+        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
         return datePicker
     }()
     
@@ -69,7 +72,7 @@ final class TrackersViewController: UIViewController {
     
     
     private func setupNavigationBar() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(named: "addTracker"), style: .plain, target: nil, action: #selector(addTracker))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(named: "addTracker"), style: .plain, target: self, action: #selector(addTracker))
         navigationItem.leftBarButtonItem?.tintColor = .ypBlack
         
         let searchController = UISearchController(searchResultsController: nil)
@@ -81,12 +84,22 @@ final class TrackersViewController: UIViewController {
     
     @objc
     private func addTracker() {
-        
+        let createTrackerController = CreateTrackerController()
+//        navigationController?.modalPresentationStyle = .automatic
+//        navigationController?.pushViewController(createTrackerController, animated: true)
+        let newNavController = UINavigationController(rootViewController: createTrackerController)
+        navigationController?.present(newNavController, animated: true)
+        print("addTracker")
     }
     
     @objc
-    private func datePickerValueChanged() {
-        
+    private func datePickerValueChanged(_ sender: UIDatePicker) {
+        let selectedDate = sender.date
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM.yyyy"
+        let formateDate = dateFormatter.string(from: selectedDate)
+        //TODO: - потом удалить принт
+        print("Выбранная дата: \(formateDate)")
     }
 }
 
