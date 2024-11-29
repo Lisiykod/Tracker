@@ -74,6 +74,8 @@ final class CategoriesListViewController: UIViewController {
     
     @objc
     private func addCategory() {
-        
+        let createCategoryVC = CreateCategoryViewController()
+        let newNavController = UINavigationController(rootViewController: createCategoryVC)
+        navigationController?.present(newNavController, animated: true)
     }
 }

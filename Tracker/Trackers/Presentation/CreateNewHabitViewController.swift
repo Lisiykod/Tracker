@@ -37,6 +37,7 @@ final class CreateNewHabitViewController: UIViewController {
         tableView.rowHeight = 75
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.isScrollEnabled = false
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "newTrackerCell")
         return tableView
     }()
@@ -139,7 +140,12 @@ extension CreateNewHabitViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "newTrackerCell", for: indexPath)
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "newTrackerCell", for: indexPath)
+//        cell.accessoryType = .disclosureIndicator
+//        cell.textLabel?.text = buttonsName[indexPath.row]
+//        cell.backgroundColor = .ypBackgroundDay
+//        cell.selectionStyle = .none
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "newTrackerCell")
         cell.accessoryType = .disclosureIndicator
         cell.textLabel?.text = buttonsName[indexPath.row]
         cell.backgroundColor = .ypBackgroundDay
@@ -150,9 +156,10 @@ extension CreateNewHabitViewController: UITableViewDataSource {
 
 extension CreateNewHabitViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.row == 0 {
+        let item = buttonsName[indexPath.row]
+        if item == "Категория"  {
             showCreateCategoryViewController()
-        } else if indexPath.row == 1 {
+        } else if item == "Расписание"{
             showCreateScheduleViewController()
         }
     }
