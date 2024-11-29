@@ -108,7 +108,7 @@ final class CreateNewHabitViewController: UIViewController {
     }
     
     private func showCreateCategoryViewController() {
-        let categoryViewController = CreateCategoryViewController()
+        let categoryViewController = CategoriesListViewController()
         let newNavController = UINavigationController(rootViewController: categoryViewController)
         navigationController?.present(newNavController, animated: true)
     }

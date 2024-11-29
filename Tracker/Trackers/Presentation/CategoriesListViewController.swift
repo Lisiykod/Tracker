@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class CreateCategoryViewController: UIViewController {
+final class CategoriesListViewController: UIViewController {
     
     private var categories: [TrackerCategory] = []
     
