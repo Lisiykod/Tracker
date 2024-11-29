@@ -85,11 +85,8 @@ final class TrackersViewController: UIViewController {
     @objc
     private func addTracker() {
         let createTrackerController = CreateTrackerController()
-//        navigationController?.modalPresentationStyle = .automatic
-//        navigationController?.pushViewController(createTrackerController, animated: true)
         let newNavController = UINavigationController(rootViewController: createTrackerController)
         navigationController?.present(newNavController, animated: true)
-        print("addTracker")
     }
     
     @objc
