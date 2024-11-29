@@ -143,7 +143,7 @@ extension CreateNewHabitViewController: UITableViewDataSource {
         cell.accessoryType = .disclosureIndicator
         cell.textLabel?.text = buttonsName[indexPath.row]
         cell.backgroundColor = .ypBackgroundDay
-//        cell.selectionStyle = .none
+        cell.selectionStyle = .none
         return cell
     }
 }
