@@ -7,9 +7,20 @@
 
 import UIKit
 
-final class CategoriesListViewController: UIViewController {
+protocol CreateCategoryDelegate: AnyObject {
+    func didCreateCategory(name: String)
+}
+
+final class CategoriesListViewController: UIViewController, CreateCategoryDelegate {
+    func didCreateCategory(name: String) {
+        categories.append(name)
+        tableView.reloadData()
+        print("new categories count: \(categories.count)")
+//        navigationController?.popViewController(animated: true)
+    }
     
-    private var categories: [TrackerCategory] = []
+    
+    private var categories: [String] = ["Важное"]
     
     private lazy var emptyCategoryImage: UIImageView = {
         let image = UIImage(named: "empty_trackers_image")
@@ -45,37 +56,110 @@ final class CategoriesListViewController: UIViewController {
         return button
     }()
     
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.backgroundColor = .ypBackgroundDay
+        tableView.layer.cornerRadius = 16
+        tableView.rowHeight = 75
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "newCategoryCell")
+        tableView.isHidden = true
+        return tableView
+    }()
+    
     // MARK: - Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
+        if categories.isEmpty {
+            setupStackViewConsttraints()
+        }
         setupConstraints()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        stackView.isHidden = categories.isEmpty ? false : true
+        tableView.isHidden = !categories.isEmpty ? false : true
+        if categories.isEmpty {
+            setupStackViewConsttraints()
+        }
+        setupConstraints()
+        tableView.reloadData()
     }
     
     // MARK: - Private Methods
     private func setupViews() {
         view.backgroundColor = .ypWhite
-        view.addSubviews([stackView, addCategoryButton])
+        view.addSubviews([tableView, stackView, addCategoryButton])
         navigationItem.title = "Категория"
+        navigationItem.hidesBackButton = true
         stackView.isHidden = categories.isEmpty ? false : true
+        tableView.isHidden = !categories.isEmpty ? false : true
+        
     }
     
     private func setupConstraints() {
+        addCategoryButton.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
         NSLayoutConstraint.activate([
-            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            view.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: 16),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            tableView.heightAnchor.constraint(equalToConstant: CGFloat(75 * categories.count)),
             
             addCategoryButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             view.trailingAnchor.constraint(equalTo: addCategoryButton.trailingAnchor, constant: 20),
-            view.safeAreaLayoutGuide.bottomAnchor.constraint(equalTo:addCategoryButton.bottomAnchor, constant: 16),
-            addCategoryButton.heightAnchor.constraint(equalToConstant: 60)
+            view.safeAreaLayoutGuide.bottomAnchor.constraint(equalTo: addCategoryButton.bottomAnchor, constant: 16),
+            addCategoryButton.heightAnchor.constraint(equalToConstant: 60),
+            addCategoryButton.topAnchor.constraint(greaterThanOrEqualTo: tableView.bottomAnchor, constant: 24)
+            
+        ])
+    }
+    
+    private func setupStackViewConsttraints() {
+        NSLayoutConstraint.activate([
+            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
         ])
     }
     
     @objc
     private func addCategory() {
         let createCategoryVC = CreateCategoryViewController()
+        createCategoryVC.delegate = self
         let newNavController = UINavigationController(rootViewController: createCategoryVC)
         navigationController?.present(newNavController, animated: true)
+//        navigationController?.modalPresentationStyle = .popover
+//        navigationController?.pushViewController(createCategoryVC, animated: true)
     }
+}
+
+extension CategoriesListViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return categories.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "newCategoryCell", for: indexPath)
+        cell.accessoryType = .checkmark
+        cell.textLabel?.text = categories[indexPath.row]
+        cell.backgroundColor = .ypBackgroundDay
+        cell.accessoryType = .checkmark
+        cell.selectionStyle = .none
+        cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        if categories.count == 1 {
+            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
+            tableView.isScrollEnabled = false
+        }
+        return cell
+    }
+    
+}
+
+extension CategoriesListViewController: UITableViewDelegate {
+//    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+//        tableView.reloadRows(at: [indexPath], with: .automatic)
+//    }
 }

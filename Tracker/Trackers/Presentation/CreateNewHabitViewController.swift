@@ -10,14 +10,12 @@ import UIKit
 final class CreateNewHabitViewController: UIViewController {
     
     private let buttonsName: [String] = ["Категория", "Расписание"]
+    var categoryName: [String] = []
+    var schedule: [String] = []
     
     // TODO: - добавить отступ плейсхолдеру, проверку на количество символов
     private lazy var textField: UITextField = {
-        let textField = UITextField()
-        textField.backgroundColor = .ypBackgroundDay
-        textField.placeholder = "Введите название трекера"
-        textField.layer.cornerRadius = 16
-        textField.layer.masksToBounds = true
+        let textField = BasicTextField(placeholder: "Введите название трекера")
         return textField
     }()
     
@@ -86,6 +84,7 @@ final class CreateNewHabitViewController: UIViewController {
         view.backgroundColor = .ypWhite
         view.addSubviews([textField, cautionLabel, tableView, stackView])
         navigationItem.title = "Новая привычка"
+        navigationItem.hidesBackButton = true
     }
     
     private func setupConstraints() {
@@ -103,7 +102,7 @@ final class CreateNewHabitViewController: UIViewController {
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             view.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: 20),
             stackView.heightAnchor.constraint(equalToConstant: 60),
-            stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            view.safeAreaLayoutGuide.bottomAnchor.constraint(lessThanOrEqualTo: stackView.bottomAnchor, constant: 24)
         ])
         
     }
@@ -140,16 +139,23 @@ extension CreateNewHabitViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "newTrackerCell", for: indexPath)
-//        cell.accessoryType = .disclosureIndicator
-//        cell.textLabel?.text = buttonsName[indexPath.row]
-//        cell.backgroundColor = .ypBackgroundDay
-//        cell.selectionStyle = .none
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "newTrackerCell")
         cell.accessoryType = .disclosureIndicator
         cell.textLabel?.text = buttonsName[indexPath.row]
         cell.backgroundColor = .ypBackgroundDay
         cell.selectionStyle = .none
+        cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        
+        let item = buttonsName[indexPath.row]
+        if item == "Категория" && !categoryName.isEmpty  {
+            cell.detailTextLabel?.text = categoryName[indexPath.row]
+        } else if item == "Расписание" && !schedule.isEmpty {
+            cell.detailTextLabel?.text = schedule[indexPath.row]
+        }
+        
+        if indexPath.row == buttonsName.count - 1 {
+            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
+        }
         return cell
     }
 }
