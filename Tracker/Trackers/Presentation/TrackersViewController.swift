@@ -9,7 +9,7 @@ import UIKit
 
 final class TrackersViewController: UIViewController {
     
-    private var categories: [TrackerCategory] = []
+    private var categories: [TrackerCategory] = [TrackerCategory(name: "Важное", trackers: [])]
     private var completedTrackers: [TrackerRecord] = []
     
     private lazy var datePicker: UIDatePicker = {
@@ -44,11 +44,20 @@ final class TrackersViewController: UIViewController {
         return stackView
     }()
     
+    private lazy var collection: UICollectionView = {
+        let collection = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        collection.backgroundColor = .ypWhite
+        collection.register(TrackerCollectionCell.self, forCellWithReuseIdentifier: "trackerCell")
+        collection.isHidden = true
+        collection.dataSource = self
+        return collection
+    }()
+    
+    
     // MARK: - Life cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
         setupViews()
         setupNavigationBar()
         setupConstraints()
@@ -57,7 +66,9 @@ final class TrackersViewController: UIViewController {
     // MARK: - Private methods
     
     private func setupViews() {
-        view.addSubviews([datePicker, emptyImageTrackersStackView])
+        view.backgroundColor = .ypWhite
+        view.addSubviews([datePicker, emptyImageTrackersStackView, collection])
+        makeViewVisible()
     }
     
     private func setupConstraints() {
@@ -68,6 +79,8 @@ final class TrackersViewController: UIViewController {
                 emptyImageTrackersStackView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
                 datePicker.widthAnchor.constraint(equalToConstant: 100)
             ])
+        
+        collection.edgesToSuperview()
     }
     
     
@@ -80,6 +93,13 @@ final class TrackersViewController: UIViewController {
         navigationItem.searchController = searchController
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
+    }
+    
+    private func makeViewVisible() {
+        if !categories.isEmpty {
+            emptyImageTrackersStackView.isHidden = true
+            collection.isHidden = false
+        }
     }
     
     @objc
@@ -100,3 +120,19 @@ final class TrackersViewController: UIViewController {
     }
 }
 
+extension TrackersViewController: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "trackerCell", for: indexPath) as? TrackerCollectionCell
+        
+        guard let cell else { return UICollectionViewCell() }
+        
+//        cell.backgroundColor = .red
+        return cell
+    }
+    
+    
+}

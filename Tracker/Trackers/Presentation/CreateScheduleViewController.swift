@@ -15,6 +15,44 @@ enum WeekDay: String {
     case friday = "Пятница"
     case saturday = "Суббота"
     case sunday = "Воскресенье"
+    
+    func getShortDay() -> String {
+        switch self {
+        case .monday:
+            "Пн"
+        case .tuersday:
+            "Вт"
+        case .wednesday:
+            "Ср"
+        case .thursday:
+            "Чт"
+        case .friday:
+            "Пт"
+        case .saturday:
+            "Сб"
+        case .sunday:
+            "Вс"
+        }
+    }
+    
+    func getDayNumber() -> Int {
+        switch self {
+        case .monday:
+            1
+        case .tuersday:
+            2
+        case .wednesday:
+            3
+        case .thursday:
+            4
+        case .friday:
+            5
+        case .saturday:
+            6
+        case .sunday:
+            7
+        }
+    }
 }
 
 enum ShortWeekDay: String {
@@ -27,27 +65,22 @@ enum ShortWeekDay: String {
     case sunday = "Вс"
 }
 
+protocol SelectedScheduleDelegate: AnyObject {
+    func didSelectSchedule(for days: [WeekDay])
+}
+
 final class CreateScheduleViewController: UIViewController {
     
-    private let weekDay: [String] = [
-        WeekDay.monday.rawValue,
-        WeekDay.tuersday.rawValue,
-        WeekDay.wednesday.rawValue,
-        WeekDay.thursday.rawValue,
-        WeekDay.friday.rawValue,
-        WeekDay.saturday.rawValue,
-        WeekDay.sunday.rawValue
-    ]
+    var selectedDays: [WeekDay] = []
+    weak var delegate: SelectedScheduleDelegate?
+    
+    private let weekDay: [WeekDay] = [ .monday, .tuersday, .wednesday, .thursday, .friday, .saturday, .sunday ]
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
-        tableView.rowHeight = 75
-        tableView.layer.cornerRadius = 16
-        tableView.backgroundColor = .ypBackgroundDay
+        tableView.baseSettings(with: ScheduleTableViewCell.self, reuseIdentifier: "scheduleCell")
         tableView.isScrollEnabled = false
         tableView.dataSource = self
-        tableView.delegate = self
-        tableView.register(ScheduleTableViewCell.self, forCellReuseIdentifier: "scheduleCell")
         return tableView
     }()
     
@@ -92,8 +125,9 @@ final class CreateScheduleViewController: UIViewController {
     }
     
     private func configureCell(with cell: ScheduleTableViewCell, for indexPath: IndexPath) {
-        cell.label.text = weekDay[indexPath.row]
+        cell.label.text = weekDay[indexPath.row].rawValue
         cell.switchControl.isOn = false
+        cell.day = weekDay[indexPath.row].getDayNumber()
         
         if indexPath.row == weekDay.count - 1 {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: UIScreen.main.bounds.width)
@@ -102,9 +136,9 @@ final class CreateScheduleViewController: UIViewController {
     
     @objc
     private func createNewSchedule() {
-        
+        delegate?.didSelectSchedule(for: selectedDays)
+        navigationController?.dismiss(animated: true)
     }
-    
     
 }
 
@@ -117,17 +151,26 @@ extension CreateScheduleViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "scheduleCell", for: indexPath)
         
-        guard let imageCell = cell as? ScheduleTableViewCell else {
+        guard let scheduleCell = cell as? ScheduleTableViewCell else {
             return UITableViewCell()
         }
        
-        configureCell(with: imageCell, for: indexPath)
-        return imageCell
+        scheduleCell.delegate = self
+        configureCell(with: scheduleCell, for: indexPath)
+        return scheduleCell
     }
     
     
 }
 
-extension CreateScheduleViewController: UITableViewDelegate {
+extension CreateScheduleViewController: WeekDayDelegate {
+    func selected(day: Int) {
+        selectedDays.append(weekDay[day])
+        print(selectedDays.count)
+    }
+    
+    func deselected(day: Int) {
+        selectedDays.remove(at: day)
+    }
     
 }

@@ -7,7 +7,15 @@
 
 import UIKit
 
+protocol WeekDayDelegate: AnyObject {
+    func selected(day: Int)
+    func deselected(day: Int)
+}
+
 final class ScheduleTableViewCell: UITableViewCell {
+    
+    var day: Int?
+    weak var delegate: WeekDayDelegate?
     
     lazy var label: UILabel = {
         let label = UILabel()
@@ -17,8 +25,9 @@ final class ScheduleTableViewCell: UITableViewCell {
     
     lazy var switchControl: UISwitch = {
         let switchControl = UISwitch()
-        switchControl.isOn = false
+//        switchControl.setOn(false, animated: true)
         switchControl.onTintColor = .ypBlue
+        switchControl.addTarget(self, action: #selector(selectChanged), for: .valueChanged)
         return switchControl
     }()
     
@@ -50,5 +59,11 @@ final class ScheduleTableViewCell: UITableViewCell {
             contentView.trailingAnchor.constraint(equalTo: switchControl.trailingAnchor, constant: 16),
             switchControl.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
+    }
+    
+    @objc
+    private func selectChanged(_ sender: UISwitch) {
+        guard let day else { return }
+        sender.isOn ? delegate?.selected(day: day) : delegate?.deselected(day: day)
     }
 }

@@ -9,7 +9,7 @@ import UIKit
 
 final class CreateCategoryViewController: UIViewController {
     
-    weak var delegate: CreateCategoryDelegate?
+    weak var delegate: CreateNewCategoryDelegate?
     
     private lazy var textField: UITextField = {
         let textField = BasicTextField(placeholder: "Введите название категории")

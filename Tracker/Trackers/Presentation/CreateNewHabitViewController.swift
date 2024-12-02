@@ -10,10 +10,9 @@ import UIKit
 final class CreateNewHabitViewController: UIViewController {
     
     private let buttonsName: [String] = ["Категория", "Расписание"]
-    var categoryName: [String] = []
-    var schedule: [String] = []
+    var categoryName: String = "Важное"
+    var schedule: [WeekDay] = []
     
-    // TODO: - добавить отступ плейсхолдеру, проверку на количество символов
     private lazy var textField: UITextField = {
         let textField = BasicTextField(placeholder: "Введите название трекера")
         return textField
@@ -30,13 +29,10 @@ final class CreateNewHabitViewController: UIViewController {
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
-        tableView.backgroundColor = .ypBackgroundDay
-        tableView.layer.cornerRadius = 16
-        tableView.rowHeight = 75
+        tableView.baseSettings(with: UITableViewCell.self, reuseIdentifier: "newTrackerCell")
         tableView.dataSource = self
         tableView.delegate = self
         tableView.isScrollEnabled = false
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "newTrackerCell")
         return tableView
     }()
     
@@ -78,6 +74,12 @@ final class CreateNewHabitViewController: UIViewController {
         setupConstraints()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
+        print(schedule.count)
+    }
+    
     // MARK: - Private Methods
     
     private func setupViews() {
@@ -109,12 +111,14 @@ final class CreateNewHabitViewController: UIViewController {
     
     private func showCreateCategoryViewController() {
         let categoryViewController = CategoriesListViewController()
+        categoryViewController.delegate = self
         let newNavController = UINavigationController(rootViewController: categoryViewController)
         navigationController?.present(newNavController, animated: true)
     }
     
     private func showCreateScheduleViewController() {
         let scheduleViewController = CreateScheduleViewController()
+        scheduleViewController.delegate = self
         let newNavController = UINavigationController(rootViewController: scheduleViewController)
         navigationController?.present(newNavController, animated: true)
     }
@@ -144,13 +148,18 @@ extension CreateNewHabitViewController: UITableViewDataSource {
         cell.textLabel?.text = buttonsName[indexPath.row]
         cell.backgroundColor = .ypBackgroundDay
         cell.selectionStyle = .none
+        cell.detailTextLabel?.textColor = .ypGray
+        cell.detailTextLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         
         let item = buttonsName[indexPath.row]
         if item == "Категория" && !categoryName.isEmpty  {
-            cell.detailTextLabel?.text = categoryName[indexPath.row]
+            cell.detailTextLabel?.text = categoryName
         } else if item == "Расписание" && !schedule.isEmpty {
-            cell.detailTextLabel?.text = schedule[indexPath.row]
+            for days in schedule {
+                cell.detailTextLabel?.text = days.getShortDay()
+            }
+            
         }
         
         if indexPath.row == buttonsName.count - 1 {
@@ -169,4 +178,19 @@ extension CreateNewHabitViewController: UITableViewDelegate {
             showCreateScheduleViewController()
         }
     }
+}
+
+extension CreateNewHabitViewController: SelectedCategoryDelegate {
+    func categoryDidSelect(name: String) {
+        categoryName = name
+        navigationController?.popViewController(animated: true)
+    }
+}
+
+extension CreateNewHabitViewController: SelectedScheduleDelegate {
+    func didSelectSchedule(for days: [WeekDay]) {
+        schedule = days
+        tableView.reloadData()
+    }
+    
 }

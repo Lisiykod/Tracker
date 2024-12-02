@@ -7,11 +7,15 @@
 
 import UIKit
 
-protocol CreateCategoryDelegate: AnyObject {
+protocol CreateNewCategoryDelegate: AnyObject {
     func didCreateCategory(name: String)
 }
 
-final class CategoriesListViewController: UIViewController, CreateCategoryDelegate {
+protocol SelectedCategoryDelegate: AnyObject {
+    func categoryDidSelect(name: String)
+}
+
+final class CategoriesListViewController: UIViewController, CreateNewCategoryDelegate {
     func didCreateCategory(name: String) {
         categories.append(name)
         tableView.reloadData()
@@ -20,7 +24,8 @@ final class CategoriesListViewController: UIViewController, CreateCategoryDelega
     }
     
     
-    private var categories: [String] = ["Важное"]
+    weak var delegate: SelectedCategoryDelegate?
+    var categories: [String] = ["Важное"]
     
     private lazy var emptyCategoryImage: UIImageView = {
         let image = UIImage(named: "empty_trackers_image")
@@ -58,12 +63,9 @@ final class CategoriesListViewController: UIViewController, CreateCategoryDelega
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
-        tableView.backgroundColor = .ypBackgroundDay
-        tableView.layer.cornerRadius = 16
-        tableView.rowHeight = 75
+        tableView.baseSettings(with: UITableViewCell.self, reuseIdentifier: "newCategoryCell")
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "newCategoryCell")
         tableView.isHidden = true
         return tableView
     }()
@@ -147,7 +149,7 @@ extension CategoriesListViewController: UITableViewDataSource {
         cell.textLabel?.text = categories[indexPath.row]
         cell.backgroundColor = .ypBackgroundDay
         cell.accessoryType = .checkmark
-        cell.selectionStyle = .none
+//        cell.selectionStyle = .none
         cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         if categories.count == 1 {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
@@ -161,5 +163,21 @@ extension CategoriesListViewController: UITableViewDataSource {
 extension CategoriesListViewController: UITableViewDelegate {
 //    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
 //        tableView.reloadRows(at: [indexPath], with: .automatic)
+//    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let cell = tableView.cellForRow(at: indexPath) {
+            if cell.accessoryType == .none {
+                cell.accessoryType = .checkmark
+                delegate?.categoryDidSelect(name: categories[indexPath.row])
+                navigationController?.dismiss(animated: true)
+            } else {
+                cell.accessoryType = .none
+            }
+        }
+    }
+    
+//    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+//        <#code#>
 //    }
 }
