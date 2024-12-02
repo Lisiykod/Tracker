@@ -156,8 +156,14 @@ extension CreateNewHabitViewController: UITableViewDataSource {
         if item == "Категория" && !categoryName.isEmpty  {
             cell.detailTextLabel?.text = categoryName
         } else if item == "Расписание" && !schedule.isEmpty {
-            for days in schedule {
-                cell.detailTextLabel?.text = days.getShortDay()
+            if schedule.count == 7 {
+                cell.detailTextLabel?.text = "Каждый день"
+            } else {
+                var daysForTitle: [String] = []
+                for days in schedule {
+                    daysForTitle.append(days.getShortDay())
+                    cell.detailTextLabel?.text = daysForTitle.joined(separator: ", ")
+                }
             }
             
         }
@@ -172,9 +178,9 @@ extension CreateNewHabitViewController: UITableViewDataSource {
 extension CreateNewHabitViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let item = buttonsName[indexPath.row]
-        if item == "Категория"  {
+        if item == "Категория" {
             showCreateCategoryViewController()
-        } else if item == "Расписание"{
+        } else if item == "Расписание" {
             showCreateScheduleViewController()
         }
     }

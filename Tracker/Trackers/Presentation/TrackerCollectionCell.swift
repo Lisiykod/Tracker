@@ -29,7 +29,17 @@ final class TrackerCollectionCell: UICollectionViewCell {
         return label
     }()
     
-    lazy var backgroundEmojiView: UIView = {
+    
+    lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        label.textColor = .ypWhite
+        label.textAlignment = .left
+        label.numberOfLines = 2
+        return label
+    }()
+    
+    private lazy var backgroundEmojiView: UIView = {
         let view = UIView()
         view.backgroundColor = .ypWhite.withAlphaComponent(0.3)
         view.layer.cornerRadius = 68
@@ -37,16 +47,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
         return view
     }()
     
-    lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        label.textColor = .ypWhite
-        label.textAlignment = .right
-        label.numberOfLines = 2
-        return label
-    }()
-    
-    lazy var dateLabel: UILabel = {
+    private lazy var dateLabel: UILabel = {
         let label = UILabel()
         label.textColor = .ypBlack
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
@@ -54,12 +55,13 @@ final class TrackerCollectionCell: UICollectionViewCell {
         return label
     }()
     
-    lazy var plusButton: UIButton = {
+   private lazy var plusButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "plus"), for: .normal)
+       button.tintColor = .ypWhite
         button.setTitleColor(.ypWhite, for: .normal)
         button.backgroundColor = randomColor()
-        button.layer.cornerRadius = button.bounds.height/2
+        button.layer.cornerRadius = 17
         button.layer.masksToBounds = true
         button.addTarget(self, action: #selector(plusButtonTapped), for: .touchUpInside)
         return button
@@ -117,7 +119,8 @@ final class TrackerCollectionCell: UICollectionViewCell {
             plusButton.widthAnchor.constraint(equalToConstant: 34),
             plusButton.heightAnchor.constraint(equalToConstant: 34),
             colorView.trailingAnchor.constraint(equalTo: plusButton.trailingAnchor, constant: 16),
-            colorView.bottomAnchor.constraint(equalTo: plusButton.topAnchor, constant: 16),
+            plusButton.topAnchor.constraint(equalTo: colorView.bottomAnchor, constant: 8),
+            contentView.bottomAnchor.constraint(equalTo: plusButton.bottomAnchor, constant: 16),
             
             dateLabel.centerYAnchor.constraint(equalTo: plusButton.centerYAnchor),
             dateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)

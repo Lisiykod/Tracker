@@ -38,19 +38,19 @@ enum WeekDay: String {
     func getDayNumber() -> Int {
         switch self {
         case .monday:
-            1
+            0
         case .tuersday:
-            2
+            1
         case .wednesday:
-            3
+            2
         case .thursday:
-            4
+            3
         case .friday:
-            5
+            4
         case .saturday:
-            6
+            5
         case .sunday:
-            7
+            6
         }
     }
 }
