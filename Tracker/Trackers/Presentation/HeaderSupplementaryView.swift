@@ -19,6 +19,7 @@ final class HeaderSupplementaryView: UICollectionReusableView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubviews([headerLabel])
+        setupConstraints()
     }
     
     required init?(coder: NSCoder) {
@@ -27,9 +28,8 @@ final class HeaderSupplementaryView: UICollectionReusableView {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            headerLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            headerLabel.topAnchor.constraint(equalTo: topAnchor),
-            headerLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
+            headerLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 28),
+            headerLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 12)
         ])
     }
 }

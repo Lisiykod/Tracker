@@ -106,9 +106,20 @@ final class TrackersViewController: UIViewController {
     
     @objc
     private func addTracker() {
-        let createTrackerController = CreateTrackerController()
-        let newNavController = UINavigationController(rootViewController: createTrackerController)
-        navigationController?.present(newNavController, animated: true)
+                let createTrackerController = CreateTrackerController()
+                let newNavController = UINavigationController(rootViewController: createTrackerController)
+                navigationController?.present(newNavController, animated: true)
+        
+//        guard !categories.isEmpty else { return }
+//        
+//        let count = categories.count
+//        print("count: \(count)")
+//        categories.append(TrackerCategory(name: "Важное", trackers: [Trackers(id: UUID(), name: "", color: .ypRed, emoji: "☺️", schedule: [])]))
+//        print("categories.count: \(categories.count)")
+//        collection.performBatchUpdates {
+//            let indexes = (count..<categories.count).map { IndexPath(row: $0, section: 0) }
+//            collection.insertItems(at: indexes)
+//        }
     }
     
     @objc
@@ -143,10 +154,9 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as? HeaderSupplementaryView
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader , withReuseIdentifier: "header", for: indexPath) as? HeaderSupplementaryView
         guard let header else { return UICollectionReusableView() }
-//        header.headerLabel.text = categories[indexPath.section].name
-        header.headerLabel.text = "Важное"
+        header.headerLabel.text = categories[indexPath.section].name
         return header
     }
     
@@ -155,12 +165,13 @@ extension TrackersViewController: UICollectionViewDataSource {
 extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         let indexPath = IndexPath(row: 0, section: section)
-        let headerView = self.collectionView(collectionView, viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionHeader, at: indexPath)
+        let headerView = self.collectionView(collectionView, viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionHeader, at: indexPath) as? HeaderSupplementaryView
+        guard let headerView else { return .zero }
         return headerView.systemLayoutSizeFitting(
             CGSize(width: collectionView.frame.width,
-                   height: 18)
-//            withHorizontalFittingPriority: .required,
-//            verticalFittingPriority: .fittingSizeLevel
+                   height: 18),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
         )
     }
     
