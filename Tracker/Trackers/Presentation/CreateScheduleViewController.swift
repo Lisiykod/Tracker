@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum WeekDay: String, CaseIterable {
+enum WeekDay: String {
     case monday = "Понедельник"
     case tuersday = "Вторник"
     case wednesday = "Среда"
@@ -38,21 +38,22 @@ enum WeekDay: String, CaseIterable {
     func getDayNumber() -> Int {
         switch self {
         case .monday:
-            0
-        case .tuersday:
             1
-        case .wednesday:
+        case .tuersday:
             2
-        case .thursday:
+        case .wednesday:
             3
-        case .friday:
+        case .thursday:
             4
-        case .saturday:
+        case .friday:
             5
-        case .sunday:
+        case .saturday:
             6
+        case .sunday:
+            7
         }
     }
+
 }
 
 protocol SelectedScheduleDelegate: AnyObject {
@@ -117,7 +118,8 @@ final class CreateScheduleViewController: UIViewController {
     private func configureCell(with cell: ScheduleTableViewCell, for indexPath: IndexPath) {
         cell.label.text = weekDay[indexPath.row].rawValue
         cell.switchControl.isOn = false
-        cell.day = weekDay[indexPath.row].getDayNumber()
+        cell.day = weekDay[indexPath.row].getDayNumber() - 1
+//        cell.day = weekDay[indexPath.row].rawValue
         
         if indexPath.row == weekDay.count - 1 {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: UIScreen.main.bounds.width)

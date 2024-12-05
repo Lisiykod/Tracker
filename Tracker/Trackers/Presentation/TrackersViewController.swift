@@ -11,6 +11,7 @@ final class TrackersViewController: UIViewController {
     
     private let trackerService = TrackerService.shared
     private var categories: [TrackerCategory] = []
+//    private var visibleCategories: [TrackerCategory] = []
     private var completedTrackers: Set<TrackerRecord> = []
     var currentDate: Date = Date()
     
@@ -62,6 +63,7 @@ final class TrackersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        updateVisibleCategoryForSelectedDay(currentDate)
         setupViews()
         setupNavigationBar()
         setupConstraints()
@@ -70,6 +72,12 @@ final class TrackersViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         makeViewVisible()
+    }
+    
+    func updateVisibleCategoryForSelectedDay(_ day: Date) {
+        categories = trackerService.getVisibleCategoriesForDate(day)
+        makeViewVisible()
+        collection.reloadData()
     }
     
     // MARK: - Private methods
@@ -108,8 +116,7 @@ final class TrackersViewController: UIViewController {
     }
     
     private func makeViewVisible() {
-//        if !categories.isEmpty {
-        if !trackerService.trackers.isEmpty {
+        if !categories.isEmpty {
             emptyImageTrackersStackView.isHidden = true
             collection.isHidden = false
         }
@@ -143,7 +150,7 @@ final class TrackersViewController: UIViewController {
         //TODO: - потом удалить принт
         print("Выбранная дата: \(formateDate)")
         currentDate = selectedDate
-        collection.reloadData()
+        updateVisibleCategoryForSelectedDay(selectedDate)
         
     }
     
@@ -158,12 +165,11 @@ final class TrackersViewController: UIViewController {
 extension TrackersViewController: UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return trackerService.getCategoriesCount()
+        return categories.count
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//        return categories[section].trackers.count
-        return trackerService.trackers[section].trackers.count
+        return categories[section].trackers.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -172,7 +178,7 @@ extension TrackersViewController: UICollectionViewDataSource {
         guard let cell else { return UICollectionViewCell() }
         
         cell.delegate = self
-        let tracker = trackerService.trackers[indexPath.section].trackers[indexPath.row]
+        let tracker = categories[indexPath.section].trackers[indexPath.row]
         let isCompleted = checkedTrackerIsCompleted(id: tracker.id)
         let completedDays = completedTrackers.filter { $0.id == tracker.id }.count
         
@@ -191,7 +197,7 @@ extension TrackersViewController: UICollectionViewDataSource {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader , withReuseIdentifier: "header", for: indexPath) as? HeaderSupplementaryView
         guard let header else { return UICollectionReusableView() }
 //        header.headerLabel.text = categories[indexPath.section].title
-        header.headerLabel.text = trackerService.trackers[indexPath.section].title
+        header.headerLabel.text = categories[indexPath.section].title
         return header
     }
     
