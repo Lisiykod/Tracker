@@ -15,6 +15,7 @@ final class CreateNewHabitViewController: UIViewController {
     
     private lazy var textField: UITextField = {
         let textField = BasicTextField(placeholder: "Введите название трекера")
+        textField.delegate = self
         return textField
     }()
     
@@ -22,8 +23,9 @@ final class CreateNewHabitViewController: UIViewController {
         let label = UILabel()
         label.textColor = .ypRed
         label.text = "Ограничение 38 символов"
+        label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-        label.isHidden = true
+//        label.isHidden = true
         return label
     }()
     
@@ -59,11 +61,18 @@ final class CreateNewHabitViewController: UIViewController {
         return button
     }()
     
-    private lazy var stackView: UIStackView = {
+    private lazy var buttonStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [cancelButton, createButton])
         stackView.axis = .horizontal
         stackView.spacing = 8
         stackView.distribution = .fillEqually
+        return stackView
+    }()
+    
+    private lazy var textStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [textField, cautionLabel])
+        stackView.axis = .vertical
+        stackView.spacing = 8
         return stackView
     }()
     
@@ -76,6 +85,7 @@ final class CreateNewHabitViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        textField.becomeFirstResponder()
         tableView.reloadData()
         print(schedule.count)
     }
@@ -84,27 +94,27 @@ final class CreateNewHabitViewController: UIViewController {
     
     private func setupViews() {
         view.backgroundColor = .ypWhite
-        view.addSubviews([textField, cautionLabel, tableView, stackView])
+        view.addSubviews([textStackView, tableView, buttonStackView])
         navigationItem.title = "Новая привычка"
-        navigationItem.hidesBackButton = true
+        cautionLabel.isHidden = true
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            textField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            view.trailingAnchor.constraint(equalTo: textField.trailingAnchor, constant: 16),
-            textField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
-            textField.heightAnchor.constraint(equalToConstant: 75),
+            textStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            view.trailingAnchor.constraint(equalTo: textStackView.trailingAnchor, constant: 16),
+            textStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            textStackView.heightAnchor.constraint(equalToConstant: 75),
             
-            tableView.leadingAnchor.constraint(equalTo: textField.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: textField.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 24),
+            tableView.topAnchor.constraint(equalTo: textStackView.bottomAnchor, constant: 24),
+            tableView.leadingAnchor.constraint(equalTo: textStackView.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: textStackView.trailingAnchor),
             tableView.heightAnchor.constraint(equalToConstant: 150),
             
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            view.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: 20),
-            stackView.heightAnchor.constraint(equalToConstant: 60),
-            view.safeAreaLayoutGuide.bottomAnchor.constraint(lessThanOrEqualTo: stackView.bottomAnchor, constant: 24)
+            buttonStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            view.trailingAnchor.constraint(equalTo: buttonStackView.trailingAnchor, constant: 20),
+            buttonStackView.heightAnchor.constraint(equalToConstant: 60),
+            view.safeAreaLayoutGuide.bottomAnchor.constraint(lessThanOrEqualTo: buttonStackView.bottomAnchor, constant: 24)
         ])
         
     }
@@ -121,6 +131,26 @@ final class CreateNewHabitViewController: UIViewController {
         scheduleViewController.delegate = self
         let newNavController = UINavigationController(rootViewController: scheduleViewController)
         navigationController?.present(newNavController, animated: true)
+    }
+    
+    private func enableCreateButton() {
+        guard let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+              categoryName != "",
+              !schedule.isEmpty
+        else { return }
+        
+        if !text.isEmpty {
+            createButton.isEnabled = true
+        }
+        createButton.backgroundColor = .ypBlack
+    }
+    
+    private func showCautionView() {
+        if let text = textField.text, text.count >= 1 {
+            cautionLabel.isHidden = false
+        } else {
+            cautionLabel.isHidden = true
+        }
     }
     
     @objc
@@ -186,6 +216,23 @@ extension CreateNewHabitViewController: UITableViewDelegate {
     }
 }
 
+extension CreateNewHabitViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        enableCreateButton()
+        return true
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if let text = textField.text, text.count >= 1 {
+            cautionLabel.isHidden = false
+        } else {
+            cautionLabel.isHidden = true
+        }
+        return true
+    }
+}
+
 extension CreateNewHabitViewController: SelectedCategoryDelegate {
     func categoryDidSelect(name: String) {
         categoryName = name
@@ -198,5 +245,5 @@ extension CreateNewHabitViewController: SelectedScheduleDelegate {
         schedule = days
         tableView.reloadData()
     }
-    
 }
+

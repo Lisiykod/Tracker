@@ -7,10 +7,20 @@
 
 import UIKit
 
+protocol CompletedTrackerDelegate: AnyObject {
+    func appendTrackerRecord(tracker id: UUID, at indexPath: IndexPath)
+    func removeTrackerRecord(tracker id: UUID, at indexPath: IndexPath)
+}
+
 final class TrackerCollectionCell: UICollectionViewCell {
     
-    var count: Int = 0
+    weak var delegate: CompletedTrackerDelegate?
     
+    var daysCount: Int = 0
+    var id: UUID?
+    var indexPath: IndexPath?
+    var isCompleted: Bool = false
+
     let colors: [UIColor] = [.ypColorSelection1, .ypColorSelection2, .ypColorSelection3, .ypColorSelection4, .ypColorSelection5, .ypColorSelection6, .ypColorSelection7, .ypColorSelection8, .ypColorSelection9, .ypColorSelection10, .ypColorSelection11, .ypColorSelection12, .ypColorSelection13, .ypColorSelection14, .ypColorSelection15, .ypColorSelection16, .ypColorSelection17, .ypColorSelection18]
     let emojis: [String] = ["🙂","😻","🌺","🐶","❤️","😱","😇","😡","🥶","🤔","🍺","🍔","🥦","🏓","🥇","🎸","🏝","😪"]
     
@@ -25,10 +35,8 @@ final class TrackerCollectionCell: UICollectionViewCell {
         let label = UILabel()
         label.text = randomEmoji()
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
     
     lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -39,26 +47,10 @@ final class TrackerCollectionCell: UICollectionViewCell {
         return label
     }()
     
-    private lazy var backgroundEmojiView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .ypWhite.withAlphaComponent(0.3)
-        view.layer.cornerRadius = 68
-        view.addSubview(emojiLabel)
-        return view
-    }()
-    
-    private lazy var dateLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .ypBlack
-        label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        label.text = "\(count) дней"
-        return label
-    }()
-    
-   private lazy var plusButton: UIButton = {
+    lazy var plusButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "plus"), for: .normal)
-       button.tintColor = .ypWhite
+        button.tintColor = .ypWhite
         button.setTitleColor(.ypWhite, for: .normal)
         button.backgroundColor = randomColor()
         button.layer.cornerRadius = 17
@@ -67,7 +59,19 @@ final class TrackerCollectionCell: UICollectionViewCell {
         return button
     }()
     
-    private var isCompleted: Bool = false
+    private lazy var backgroundEmojiView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .ypWhite.withAlphaComponent(0.3)
+        view.layer.cornerRadius = 12
+        return view
+    }()
+    
+    lazy var dateLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .ypBlack
+        label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        return label
+    }()
     
     // временные функции
     func randomColor() -> UIColor {
@@ -94,10 +98,34 @@ final class TrackerCollectionCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func configureCell(with tracker: Tracker, isCompleted: Bool, selectedDate: Date, daysCount: Int, at indexPath: IndexPath) {
+        titleLabel.text = tracker.title
+        colorView.backgroundColor = tracker.color
+        emojiLabel.text = tracker.emoji
+        self.isCompleted = isCompleted
+        self.daysCount = daysCount
+        // добавить функцию склоняющую окончания
+        dateLabel.text = "\(self.daysCount) дней"
+        
+        let buttonImage = isCompleted ? UIImage(named: "done") : UIImage(systemName: "plus")
+        plusButton.setImage(buttonImage, for: .normal)
+        plusButton.alpha = isCompleted ?  0.3 : 1
+        
+        id = tracker.id
+        self.indexPath = indexPath
+        
+        if selectedDate > Date() {
+            plusButton.isHidden = true
+        } else {
+            plusButton.isHidden = false
+        }
+    }
+    
     // MARK: - Private Methods
     private func setupView() {
         contentView.backgroundColor = .ypWhite
-        contentView.addSubviews([colorView, backgroundEmojiView, titleLabel, dateLabel, plusButton])
+        contentView.addSubviews([colorView, backgroundEmojiView, emojiLabel, titleLabel, dateLabel, plusButton])
+        print("isCompleted \(isCompleted)")
     }
     
     private func setupConstraints() {
@@ -110,6 +138,11 @@ final class TrackerCollectionCell: UICollectionViewCell {
             backgroundEmojiView.heightAnchor.constraint(equalToConstant: 24),
             backgroundEmojiView.leadingAnchor.constraint(equalTo: colorView.leadingAnchor, constant: 12),
             backgroundEmojiView.topAnchor.constraint(equalTo: colorView.topAnchor, constant: 12),
+            
+            emojiLabel.leadingAnchor.constraint(equalTo: colorView.leadingAnchor, constant: 16),
+            emojiLabel.topAnchor.constraint(equalTo: colorView.topAnchor, constant: 12),
+            emojiLabel.widthAnchor.constraint(equalToConstant: 24),
+            emojiLabel.heightAnchor.constraint(equalToConstant: 24),
             
             titleLabel.leadingAnchor.constraint(equalTo: backgroundEmojiView.leadingAnchor),
             titleLabel.topAnchor.constraint(equalTo: backgroundEmojiView.bottomAnchor, constant: 8),
@@ -124,26 +157,22 @@ final class TrackerCollectionCell: UICollectionViewCell {
             
             dateLabel.centerYAnchor.constraint(equalTo: plusButton.centerYAnchor),
             dateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
-
+            
         ])
     }
     
     @objc
     private func plusButtonTapped() {
-        if !isCompleted {
-            count += 1
-            isCompleted.toggle()
-            plusButton.setImage(UIImage(named: "done"), for: .normal)
-        } else {
-            if count > 0 {
-                count -= 1
-            }
-            isCompleted.toggle()
-            plusButton.setImage(UIImage(systemName: "plus"), for: .normal)
+        guard let id = id,
+              let indexPath = indexPath else {
+            print("not id")
+            return
         }
         
-        dateLabel.text = "\(count) дней"
-        
-        // добавить функцию склоняющую окончания
+        if !isCompleted {
+            delegate?.appendTrackerRecord(tracker: id, at: indexPath)
+        } else {
+            delegate?.removeTrackerRecord(tracker: id, at: indexPath)
+        }
     }
 }

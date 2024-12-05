@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum WeekDay: String {
+enum WeekDay: String, CaseIterable {
     case monday = "Понедельник"
     case tuersday = "Вторник"
     case wednesday = "Среда"
@@ -53,16 +53,6 @@ enum WeekDay: String {
             6
         }
     }
-}
-
-enum ShortWeekDay: String {
-    case monday = "Пн"
-    case tuersday = "Вт"
-    case wednesday = "Ср"
-    case thursday = "Чт"
-    case friday = "Пт"
-    case saturday = "Сб"
-    case sunday = "Вс"
 }
 
 protocol SelectedScheduleDelegate: AnyObject {
