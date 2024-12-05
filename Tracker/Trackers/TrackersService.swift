@@ -1,5 +1,5 @@
 //
-//  TrackerService.swift
+//  TrackersService.swift
 //  Tracker
 //
 //  Created by Olga Trofimova on 04.12.2024.
@@ -7,15 +7,15 @@
 
 import Foundation
 
-protocol TrackerServiceDelegate: AnyObject {
+protocol TrackersServiceDelegate: AnyObject {
     func updateTrackers()
 }
 
-final class TrackerService {
-    static let shared = TrackerService()
-    weak var delegate: TrackerServiceDelegate?
+final class TrackersService {
+    static let shared = TrackersService()
+    weak var delegate: TrackersServiceDelegate?
     
-    var trackers: [TrackerCategory] = [TrackerCategory(
+    private(set) var trackers: [TrackerCategory] = [TrackerCategory(
         title: "Важное",
         trackers: [
             Tracker(
@@ -23,8 +23,8 @@ final class TrackerService {
                 title: "Погладить кота",
                 color: .ypColorSelection15,
                 emoji: "😻",
-                schedule: [.monday]
-//                schedule: [.monday , .tuersday, .wednesday, .thursday, .friday, .saturday, .sunday]
+//                schedule: [.monday]
+                schedule: [.monday , .tuersday, .wednesday, .thursday, .friday, .saturday, .sunday]
             ),
             Tracker(
                 id: UUID(),
@@ -75,7 +75,6 @@ final class TrackerService {
         visibleCategories = trackers.compactMap { category in
             let filteredTrackers = category.trackers.filter { tracker in
                 tracker.schedule.contains { weekday in
-                    print("\(weekday.getDayNumber()) filterWeekday \(filterWeekday)")
                     return weekday.getDayNumber() == filterWeekday
                     
                 }

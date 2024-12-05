@@ -9,9 +9,10 @@ import UIKit
 
 final class CreateNewHabitViewController: UIViewController {
     
-    private let buttonsName: [String] = ["Категория", "Расписание"]
-    var categoryName: String = "Важное"
+    let trackersService = TrackersService.shared
+    var categoryName: String?
     var schedule: [WeekDay] = []
+    private let buttonsName: [String] = ["Категория", "Расписание"]
     
     private lazy var textField: UITextField = {
         let textField = BasicTextField(placeholder: "Введите название трекера")
@@ -25,7 +26,7 @@ final class CreateNewHabitViewController: UIViewController {
         label.text = "Ограничение 38 символов"
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-//        label.isHidden = true
+        label.isHidden = true
         return label
     }()
     
@@ -139,10 +140,10 @@ final class CreateNewHabitViewController: UIViewController {
               !schedule.isEmpty
         else { return }
         
-        if !text.isEmpty {
+        if !text.isEmpty, categoryName != nil, !schedule.isEmpty {
+            createButton.backgroundColor = .ypBlack
             createButton.isEnabled = true
         }
-        createButton.backgroundColor = .ypBlack
     }
     
     private func showCautionView() {
@@ -155,14 +156,25 @@ final class CreateNewHabitViewController: UIViewController {
     
     @objc
     private func createNewHabit() {
+        let emojisAndColors = EmojisAndColors.shared
+        guard let title = textField.text,
+        let categoryName = categoryName else { return }
+        let newTracker = Tracker(
+            id: UUID(),
+            title: title,
+            color: emojisAndColors.randomColor(),
+            emoji: emojisAndColors.randomEmoji(),
+            schedule: schedule
+        )
         
+        trackersService.addTracker(tracker: newTracker, for: categoryName)
+        view?.window?.rootViewController?.dismiss(animated: true)
     }
     
     @objc
     private func createCanceled() {
-        self.dismiss(animated: true)
+        view?.window?.rootViewController?.dismiss(animated: true)
     }
-    
     
 }
 
@@ -183,7 +195,7 @@ extension CreateNewHabitViewController: UITableViewDataSource {
         cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         
         let item = buttonsName[indexPath.row]
-        if item == "Категория" && !categoryName.isEmpty  {
+        if item == "Категория" {
             cell.detailTextLabel?.text = categoryName
         } else if item == "Расписание" && !schedule.isEmpty {
             if schedule.count == 7 {
@@ -192,7 +204,9 @@ extension CreateNewHabitViewController: UITableViewDataSource {
                 var daysForTitle: [String] = []
                 for days in schedule {
                     daysForTitle.append(days.getShortDay())
+                    //TODO: - сделать сортировку по дням недели
                     cell.detailTextLabel?.text = daysForTitle.joined(separator: ", ")
+//
                 }
             }
             
@@ -224,7 +238,7 @@ extension CreateNewHabitViewController: UITextFieldDelegate {
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if let text = textField.text, text.count >= 1 {
+        if let text = textField.text, text.count >= 38 {
             cautionLabel.isHidden = false
         } else {
             cautionLabel.isHidden = true
@@ -236,7 +250,8 @@ extension CreateNewHabitViewController: UITextFieldDelegate {
 extension CreateNewHabitViewController: SelectedCategoryDelegate {
     func categoryDidSelect(name: String) {
         categoryName = name
-        navigationController?.popViewController(animated: true)
+        tableView.reloadData()
+        enableCreateButton()
     }
 }
 
@@ -244,6 +259,7 @@ extension CreateNewHabitViewController: SelectedScheduleDelegate {
     func didSelectSchedule(for days: [WeekDay]) {
         schedule = days
         tableView.reloadData()
+        enableCreateButton()
     }
 }
 

@@ -20,20 +20,15 @@ final class TrackerCollectionCell: UICollectionViewCell {
     var id: UUID?
     var indexPath: IndexPath?
     var isCompleted: Bool = false
-
-    let colors: [UIColor] = [.ypColorSelection1, .ypColorSelection2, .ypColorSelection3, .ypColorSelection4, .ypColorSelection5, .ypColorSelection6, .ypColorSelection7, .ypColorSelection8, .ypColorSelection9, .ypColorSelection10, .ypColorSelection11, .ypColorSelection12, .ypColorSelection13, .ypColorSelection14, .ypColorSelection15, .ypColorSelection16, .ypColorSelection17, .ypColorSelection18]
-    let emojis: [String] = ["🙂","😻","🌺","🐶","❤️","😱","😇","😡","🥶","🤔","🍺","🍔","🥦","🏓","🥇","🎸","🏝","😪"]
     
     lazy var colorView: UIView = {
         let view = UIView()
-        view.backgroundColor = randomColor()
         view.layer.cornerRadius = 16
         return view
     }()
     
     lazy var emojiLabel: UILabel = {
         let label = UILabel()
-        label.text = randomEmoji()
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         return label
     }()
@@ -52,7 +47,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
         button.setImage(UIImage(systemName: "plus"), for: .normal)
         button.tintColor = .ypWhite
         button.setTitleColor(.ypWhite, for: .normal)
-        button.backgroundColor = randomColor()
         button.layer.cornerRadius = 17
         button.layer.masksToBounds = true
         button.addTarget(self, action: #selector(plusButtonTapped), for: .touchUpInside)
@@ -73,20 +67,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
         return label
     }()
     
-    // временные функции
-    func randomColor() -> UIColor {
-        let color = colors.randomElement()
-        guard let color else { return .white }
-        return color
-        
-    }
-    
-    func randomEmoji() -> String {
-        let emoji = emojis.randomElement()
-        guard let emoji else { return "" }
-        return emoji
-    }
-    
     // MARK: - Life cycle
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -101,6 +81,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
     func configureCell(with tracker: Tracker, isCompleted: Bool, selectedDate: Date, daysCount: Int, at indexPath: IndexPath) {
         titleLabel.text = tracker.title
         colorView.backgroundColor = tracker.color
+        plusButton.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji
         self.isCompleted = isCompleted
         self.daysCount = daysCount

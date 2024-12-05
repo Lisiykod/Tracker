@@ -9,7 +9,7 @@ import UIKit
 
 final class TrackersViewController: UIViewController {
     
-    private let trackerService = TrackerService.shared
+    private let trackerService = TrackersService.shared
     private var categories: [TrackerCategory] = []
 //    private var visibleCategories: [TrackerCategory] = []
     private var completedTrackers: Set<TrackerRecord> = []
@@ -71,7 +71,9 @@ final class TrackersViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        updateVisibleCategoryForSelectedDay(currentDate)
         makeViewVisible()
+        
     }
     
     func updateVisibleCategoryForSelectedDay(_ day: Date) {
@@ -128,17 +130,6 @@ final class TrackersViewController: UIViewController {
         let newNavController = UINavigationController(rootViewController: createTrackerController)
         navigationController?.present(newNavController, animated: true)
         
-//        guard !categories.isEmpty else { return }
-//        
-//        let count = categories[0].trackers.count
-//        print("count: \(count)")
-//        categories[0].trackers.append(Trackers(id: UUID(), name: "", color: .ypRed, emoji: "☺️", schedule: []))
-//        print("categories.count: \(categories.count)")
-//        collection.performBatchUpdates {
-//            let indexes = (count..<categories[0].trackers.count).map { IndexPath(row: $0, section: 0) }
-//            print("indexes: \(categories.count)")
-//            collection.insertItems(at: indexes)
-//        }
     }
     
     @objc
@@ -244,5 +235,11 @@ extension TrackersViewController: CompletedTrackerDelegate {
             completedTrackers.remove(trackerRecord)
         }
         collection.reloadItems(at: [indexPath])
+    }
+}
+
+extension TrackersViewController: TrackersServiceDelegate {
+    func updateTrackers() {
+        updateVisibleCategoryForSelectedDay(currentDate)
     }
 }
