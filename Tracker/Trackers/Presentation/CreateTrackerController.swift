@@ -40,7 +40,9 @@ final class CreateTrackerController: UIViewController {
     
     @objc
     private func createEvent() {
-        
+        let newEventController = CreateNewEventViewController()
+        let newNavController = UINavigationController(rootViewController: newEventController)
+        navigationController?.present(newNavController, animated: true)
     }
     
     private func setupView() {

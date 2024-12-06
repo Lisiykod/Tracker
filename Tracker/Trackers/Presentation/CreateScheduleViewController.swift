@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum WeekDay: String {
+enum WeekDay: String, CaseIterable {
     case monday = "Понедельник"
     case tuersday = "Вторник"
     case wednesday = "Среда"
@@ -52,6 +52,18 @@ enum WeekDay: String {
         case .sunday:
             7
         }
+    }
+    
+    static func getCurrentDay() -> WeekDay? {
+        let currentDay = Calendar.current.component(.weekday, from: Date() )
+        let filterWeekday = currentDay == 1 ? 7 : currentDay - 1
+        
+        let allDays: [WeekDay] = WeekDay.allCases.filter { weekDay in
+            weekDay.getDayNumber() == filterWeekday
+        }
+        
+        print(allDays.first)
+        return allDays.first
     }
 
 }

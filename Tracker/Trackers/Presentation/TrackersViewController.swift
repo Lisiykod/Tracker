@@ -63,17 +63,11 @@ final class TrackersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        trackerService.delegate = self
         updateVisibleCategoryForSelectedDay(currentDate)
         setupViews()
         setupNavigationBar()
         setupConstraints()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        updateVisibleCategoryForSelectedDay(currentDate)
-        makeViewVisible()
-        
     }
     
     func updateVisibleCategoryForSelectedDay(_ day: Date) {
@@ -135,11 +129,6 @@ final class TrackersViewController: UIViewController {
     @objc
     private func datePickerValueChanged(_ sender: UIDatePicker) {
         let selectedDate = sender.date
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM.yyyy"
-        let formateDate = dateFormatter.string(from: selectedDate)
-        //TODO: - потом удалить принт
-        print("Выбранная дата: \(formateDate)")
         currentDate = selectedDate
         updateVisibleCategoryForSelectedDay(selectedDate)
         
@@ -187,7 +176,6 @@ extension TrackersViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader , withReuseIdentifier: "header", for: indexPath) as? HeaderSupplementaryView
         guard let header else { return UICollectionReusableView() }
-//        header.headerLabel.text = categories[indexPath.section].title
         header.headerLabel.text = categories[indexPath.section].title
         return header
     }
@@ -243,3 +231,5 @@ extension TrackersViewController: TrackersServiceDelegate {
         updateVisibleCategoryForSelectedDay(currentDate)
     }
 }
+
+

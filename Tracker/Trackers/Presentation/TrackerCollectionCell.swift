@@ -16,24 +16,24 @@ final class TrackerCollectionCell: UICollectionViewCell {
     
     weak var delegate: CompletedTrackerDelegate?
     
-    var daysCount: Int = 0
-    var id: UUID?
-    var indexPath: IndexPath?
-    var isCompleted: Bool = false
+    private var daysCount: Int = 0
+    private var id: UUID?
+    private var indexPath: IndexPath?
+    private var isCompleted: Bool = false
     
-    lazy var colorView: UIView = {
+    private lazy var colorView: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 16
         return view
     }()
     
-    lazy var emojiLabel: UILabel = {
+    private lazy var emojiLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         return label
     }()
     
-    lazy var titleLabel: UILabel = {
+    private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         label.textColor = .ypWhite
@@ -42,7 +42,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
         return label
     }()
     
-    lazy var plusButton: UIButton = {
+    private lazy var plusButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "plus"), for: .normal)
         button.tintColor = .ypWhite
@@ -60,7 +60,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
         return view
     }()
     
-    lazy var dateLabel: UILabel = {
+    private lazy var dateLabel: UILabel = {
         let label = UILabel()
         label.textColor = .ypBlack
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
@@ -77,6 +77,8 @@ final class TrackerCollectionCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // MARK: - Public Methods
     
     func configureCell(with tracker: Tracker, isCompleted: Bool, selectedDate: Date, daysCount: Int, at indexPath: IndexPath) {
         titleLabel.text = tracker.title
@@ -106,7 +108,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
     private func setupView() {
         contentView.backgroundColor = .ypWhite
         contentView.addSubviews([colorView, backgroundEmojiView, emojiLabel, titleLabel, dateLabel, plusButton])
-        print("isCompleted \(isCompleted)")
     }
     
     private func setupConstraints() {
@@ -146,7 +147,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
     private func plusButtonTapped() {
         guard let id = id,
               let indexPath = indexPath else {
-            print("not id")
             return
         }
         

@@ -58,9 +58,8 @@ final class TrackersService {
             let newCategory = TrackerCategory(title: currentCategory.title,
                                               trackers: currentCategory.trackers + [tracker])
             trackers[categoryIndex] = newCategory
-            delegate?.updateTrackers()
         }
-        
+        delegate?.updateTrackers()
     }
     
     func addCategory(_ category: TrackerCategory) {
