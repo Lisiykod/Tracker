@@ -14,6 +14,8 @@ protocol CompletedTrackerDelegate: AnyObject {
 
 final class TrackerCollectionCell: UICollectionViewCell {
     
+    static let reuseIdentifier = "trackerCell"
+    
     weak var delegate: CompletedTrackerDelegate?
     
     private var daysCount: Int = 0
@@ -87,8 +89,8 @@ final class TrackerCollectionCell: UICollectionViewCell {
         emojiLabel.text = tracker.emoji
         self.isCompleted = isCompleted
         self.daysCount = daysCount
-        // добавить функцию склоняющую окончания
-        dateLabel.text = "\(self.daysCount) дней"
+        let dayWord = declension(of: daysCount)
+        dateLabel.text = "\(self.daysCount) \(dayWord)"
         
         let buttonImage = isCompleted ? UIImage(named: "done") : UIImage(systemName: "plus")
         plusButton.setImage(buttonImage, for: .normal)
@@ -141,6 +143,24 @@ final class TrackerCollectionCell: UICollectionViewCell {
             dateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
             
         ])
+    }
+    
+    private func declension(of day: Int) -> String {
+        let reminderOf10 = day % 10
+        let reminderOf100 = day % 100
+        
+        if reminderOf100 >= 11 && reminderOf100 <= 14 {
+            return "дней"
+        }
+        
+        switch reminderOf10 {
+        case 1:
+            return "день"
+        case 2...4:
+            return "дня"
+        default:
+            return "дней"
+        }
     }
     
     @objc

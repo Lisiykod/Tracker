@@ -14,6 +14,8 @@ protocol WeekDayDelegate: AnyObject {
 
 final class ScheduleTableViewCell: UITableViewCell {
     
+    static let reuseIdentifier = "scheduleCell"
+    
     var day: Int?
     weak var delegate: WeekDayDelegate?
     
@@ -25,7 +27,6 @@ final class ScheduleTableViewCell: UITableViewCell {
     
     lazy var switchControl: UISwitch = {
         let switchControl = UISwitch()
-//        switchControl.setOn(false, animated: true)
         switchControl.onTintColor = .ypBlue
         switchControl.addTarget(self, action: #selector(selectChanged), for: .valueChanged)
         return switchControl

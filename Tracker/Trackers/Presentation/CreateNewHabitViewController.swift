@@ -7,18 +7,17 @@
 
 import UIKit
 
-protocol CreatedNewHabbitOrEventDelegate: AnyObject {
-    func reloadData()
-}
-
 final class CreateNewHabitViewController: UIViewController {
     
-    let trackersService = TrackersService.shared
-    var categoryName: String?
-    var schedule: [WeekDay] = []
-//    var isEvent: Bool = false
-    weak var delegate: CreatedNewHabbitOrEventDelegate?
+    var isEvent: Bool = false
+    
+    private let trackersService = TrackersService.shared
+    private var categoryName: String?
+    private var currentWeekday = WeekDay.getCurrentDay()
+    private var schedule: [WeekDay] = []
     private let buttonsName: [String] = ["Категория", "Расписание"]
+    private let reuseIdentifier: String = "newTrackerCell"
+    private let maximumTextCount: Int = 38
     
     private lazy var textField: UITextField = {
         let textField = BasicTextField(placeholder: "Введите название трекера")
@@ -38,7 +37,7 @@ final class CreateNewHabitViewController: UIViewController {
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
-        tableView.baseSettings(with: UITableViewCell.self, reuseIdentifier: "newTrackerCell")
+        tableView.baseSettings(with: UITableViewCell.self, reuseIdentifier: reuseIdentifier)
         tableView.dataSource = self
         tableView.delegate = self
         tableView.isScrollEnabled = false
@@ -102,7 +101,7 @@ final class CreateNewHabitViewController: UIViewController {
     private func setupViews() {
         view.backgroundColor = .ypWhite
         view.addSubviews([textStackView, tableView, buttonStackView])
-        navigationItem.title = "Новая привычка"
+        navigationItem.title = isEvent ? "Новое нерегулярное событие" : "Новая привычка"
         cautionLabel.isHidden = true
     }
     
@@ -111,12 +110,12 @@ final class CreateNewHabitViewController: UIViewController {
             textStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             view.trailingAnchor.constraint(equalTo: textStackView.trailingAnchor, constant: 16),
             textStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
-            textStackView.heightAnchor.constraint(equalToConstant: 75),
+            textField.heightAnchor.constraint(equalToConstant: 75),
             
             tableView.topAnchor.constraint(equalTo: textStackView.bottomAnchor, constant: 24),
             tableView.leadingAnchor.constraint(equalTo: textStackView.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: textStackView.trailingAnchor),
-            tableView.heightAnchor.constraint(equalToConstant: 150),
+            tableView.heightAnchor.constraint(equalToConstant: isEvent ? 75 : 150),
             
             buttonStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             view.trailingAnchor.constraint(equalTo: buttonStackView.trailingAnchor, constant: 20),
@@ -141,22 +140,22 @@ final class CreateNewHabitViewController: UIViewController {
     }
     
     private func enableCreateButton() {
-        guard let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
-              categoryName != "",
-              !schedule.isEmpty
+        let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let category = categoryName?.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard let text = text,
+              let category = category
         else { return }
         
-        if !text.isEmpty, categoryName != nil, !schedule.isEmpty {
+        let isEventButtonEnable = !text.isEmpty && !category.isEmpty && currentWeekday != nil && text.count <= maximumTextCount
+        let isHabbitButtonEnable = !text.isEmpty && !category.isEmpty && !schedule.isEmpty && text.count <= maximumTextCount
+        
+        if isHabbitButtonEnable {
             createButton.backgroundColor = .ypBlack
             createButton.isEnabled = true
-        }
-    }
-    
-    private func showCautionView() {
-        if let text = textField.text, text.count >= 1 {
-            cautionLabel.isHidden = false
-        } else {
-            cautionLabel.isHidden = true
+        } else if isEventButtonEnable {
+            createButton.backgroundColor = .ypBlack
+            createButton.isEnabled = true
         }
     }
     
@@ -164,13 +163,14 @@ final class CreateNewHabitViewController: UIViewController {
     private func createNewHabit() {
         let emojisAndColors = EmojisAndColors.shared
         guard let title = textField.text,
-        let categoryName = categoryName else { return }
+              let categoryName = categoryName,
+              let currentDay = currentWeekday else { return }
         let newTracker = Tracker(
             id: UUID(),
             title: title,
             color: emojisAndColors.randomColor(),
             emoji: emojisAndColors.randomEmoji(),
-            schedule: schedule
+            schedule: isEvent ? [currentDay] : schedule
         )
         
         trackersService.addTracker(tracker: newTracker, for: categoryName)
@@ -184,14 +184,13 @@ final class CreateNewHabitViewController: UIViewController {
     
 }
 
-
 extension CreateNewHabitViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return buttonsName.count
+        return isEvent ? buttonsName.count - 1 : buttonsName.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "newTrackerCell")
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: reuseIdentifier)
         cell.accessoryType = .disclosureIndicator
         cell.textLabel?.text = buttonsName[indexPath.row]
         cell.backgroundColor = .ypBackgroundDay
@@ -210,14 +209,12 @@ extension CreateNewHabitViewController: UITableViewDataSource {
                 var daysForTitle: [String] = []
                 for days in schedule {
                     daysForTitle.append(days.getShortDay())
-                    //TODO: - сделать сортировку по дням недели
                     cell.detailTextLabel?.text = daysForTitle.joined(separator: ", ")
-//
                 }
             }
         }
         
-        if indexPath.row == buttonsName.count - 1 {
+        if indexPath.row == buttonsName.count - (!isEvent ? 0 : 1) - 1 {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
         }
         return cell
@@ -243,7 +240,7 @@ extension CreateNewHabitViewController: UITextFieldDelegate {
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if let text = textField.text, text.count >= 38 {
+        if let text = textField.text, text.count >= maximumTextCount {
             cautionLabel.isHidden = false
         } else {
             cautionLabel.isHidden = true

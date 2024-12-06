@@ -74,7 +74,7 @@ final class TrackersService {
         visibleCategories = trackers.compactMap { category in
             let filteredTrackers = category.trackers.filter { tracker in
                 tracker.schedule.contains { weekday in
-                    return weekday.getDayNumber() == filterWeekday
+                    return weekday.rawValue == filterWeekday
                     
                 }
             }

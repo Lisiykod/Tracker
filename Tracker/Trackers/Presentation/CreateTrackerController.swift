@@ -34,14 +34,16 @@ final class CreateTrackerController: UIViewController {
     @objc
     private func createHabbit() {
         let newHabitController = CreateNewHabitViewController()
+        newHabitController.isEvent = false
         let newNavController = UINavigationController(rootViewController: newHabitController)
         navigationController?.present(newNavController, animated: true)
     }
     
     @objc
     private func createEvent() {
-        let newEventController = CreateNewEventViewController()
-        let newNavController = UINavigationController(rootViewController: newEventController)
+        let newHabitController = CreateNewHabitViewController()
+        newHabitController.isEvent = true
+        let newNavController = UINavigationController(rootViewController: newHabitController)
         navigationController?.present(newNavController, animated: true)
     }
     

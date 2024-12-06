@@ -7,81 +7,20 @@
 
 import UIKit
 
-enum WeekDay: String, CaseIterable {
-    case monday = "Понедельник"
-    case tuersday = "Вторник"
-    case wednesday = "Среда"
-    case thursday = "Четверг"
-    case friday = "Пятница"
-    case saturday = "Суббота"
-    case sunday = "Воскресенье"
-    
-    func getShortDay() -> String {
-        switch self {
-        case .monday:
-            "Пн"
-        case .tuersday:
-            "Вт"
-        case .wednesday:
-            "Ср"
-        case .thursday:
-            "Чт"
-        case .friday:
-            "Пт"
-        case .saturday:
-            "Сб"
-        case .sunday:
-            "Вс"
-        }
-    }
-    
-    func getDayNumber() -> Int {
-        switch self {
-        case .monday:
-            1
-        case .tuersday:
-            2
-        case .wednesday:
-            3
-        case .thursday:
-            4
-        case .friday:
-            5
-        case .saturday:
-            6
-        case .sunday:
-            7
-        }
-    }
-    
-    static func getCurrentDay() -> WeekDay? {
-        let currentDay = Calendar.current.component(.weekday, from: Date() )
-        let filterWeekday = currentDay == 1 ? 7 : currentDay - 1
-        
-        let allDays: [WeekDay] = WeekDay.allCases.filter { weekDay in
-            weekDay.getDayNumber() == filterWeekday
-        }
-        
-        print(allDays.first)
-        return allDays.first
-    }
-
-}
-
 protocol SelectedScheduleDelegate: AnyObject {
     func didSelectSchedule(for days: [WeekDay])
 }
 
 final class CreateScheduleViewController: UIViewController {
     
-    var selectedDays: [WeekDay] = []
     weak var delegate: SelectedScheduleDelegate?
     
     private let weekDay: [WeekDay] = [ .monday, .tuersday, .wednesday, .thursday, .friday, .saturday, .sunday ]
+    private var selectedDays: [WeekDay] = []
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
-        tableView.baseSettings(with: ScheduleTableViewCell.self, reuseIdentifier: "scheduleCell")
+        tableView.baseSettings(with: ScheduleTableViewCell.self, reuseIdentifier: ScheduleTableViewCell.reuseIdentifier)
         tableView.isScrollEnabled = false
         tableView.dataSource = self
         return tableView
@@ -128,10 +67,9 @@ final class CreateScheduleViewController: UIViewController {
     }
     
     private func configureCell(with cell: ScheduleTableViewCell, for indexPath: IndexPath) {
-        cell.label.text = weekDay[indexPath.row].rawValue
+        cell.label.text = weekDay[indexPath.row].getFullDay()
         cell.switchControl.isOn = false
-        cell.day = weekDay[indexPath.row].getDayNumber() - 1
-//        cell.day = weekDay[indexPath.row].rawValue
+        cell.day = weekDay[indexPath.row].rawValue - 1
         
         if indexPath.row == weekDay.count - 1 {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: UIScreen.main.bounds.width)
@@ -140,12 +78,12 @@ final class CreateScheduleViewController: UIViewController {
     
     @objc
     private func createNewSchedule() {
-        delegate?.didSelectSchedule(for: selectedDays)
+        let sortedDay = selectedDays.sorted { $0.rawValue < $1.rawValue }
+        delegate?.didSelectSchedule(for: sortedDay)
         navigationController?.dismiss(animated: true)
     }
     
 }
-
 
 extension CreateScheduleViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -153,7 +91,7 @@ extension CreateScheduleViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "scheduleCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: ScheduleTableViewCell.reuseIdentifier, for: indexPath)
         
         guard let scheduleCell = cell as? ScheduleTableViewCell else {
             return UITableViewCell()
@@ -163,7 +101,6 @@ extension CreateScheduleViewController: UITableViewDataSource {
         configureCell(with: scheduleCell, for: indexPath)
         return scheduleCell
     }
-    
     
 }
 

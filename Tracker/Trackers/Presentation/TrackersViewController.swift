@@ -11,9 +11,8 @@ final class TrackersViewController: UIViewController {
     
     private let trackerService = TrackersService.shared
     private var categories: [TrackerCategory] = []
-//    private var visibleCategories: [TrackerCategory] = []
     private var completedTrackers: Set<TrackerRecord> = []
-    var currentDate: Date = Date()
+    private var currentDate: Date = Date()
     
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
@@ -50,7 +49,7 @@ final class TrackersViewController: UIViewController {
     private lazy var collection: UICollectionView = {
         let collection = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         collection.backgroundColor = .ypWhite
-        collection.register(TrackerCollectionCell.self, forCellWithReuseIdentifier: "trackerCell")
+        collection.register(TrackerCollectionCell.self, forCellWithReuseIdentifier: TrackerCollectionCell.reuseIdentifier)
         collection.register(HeaderSupplementaryView.self, forSupplementaryViewOfKind:UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
         collection.isHidden = true
         collection.dataSource = self
@@ -106,6 +105,7 @@ final class TrackersViewController: UIViewController {
         
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchBar.placeholder = "Поиск"
+        searchController.delegate = self
         navigationItem.searchController = searchController
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
@@ -153,7 +153,7 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "trackerCell", for: indexPath) as? TrackerCollectionCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TrackerCollectionCell.reuseIdentifier, for: indexPath) as? TrackerCollectionCell
         
         guard let cell else { return UICollectionViewCell() }
         
@@ -206,6 +206,10 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 24, left: 16, bottom: 0, right: 16)
     }
+    
+}
+
+extension TrackersViewController: UISearchControllerDelegate {
     
 }
 
