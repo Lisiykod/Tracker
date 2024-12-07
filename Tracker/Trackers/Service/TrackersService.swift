@@ -18,34 +18,29 @@ final class TrackersService {
     private(set) var trackers: [TrackerCategory] = [TrackerCategory(
         title: "Важное",
         trackers: [
-            Tracker(
-                id: UUID(),
-                title: "Погладить кота",
-                color: .ypColorSelection15,
-                emoji: "😻",
+//            Tracker(
+//                id: UUID(),
+//                title: "Погладить кота",
+//                color: .ypColorSelection15,
+//                emoji: "😻",
+//                schedule: [.monday , .tuersday, .saturday, .sunday]
+//            ),
+//            Tracker(
+//                id: UUID(),
+//                title: "Лечь спать до 12ти",
+//                color: .ypColorSelection8,
+//                emoji: "😪",
+//                schedule: [.monday, .wednesday, .thursday]
+//            ),
+//            Tracker(
+//                id: UUID(),
+//                title: "Помечтать о пятнице",
+//                color: .ypColorSelection12,
+//                emoji: "🎸",
 //                schedule: [.monday]
-                schedule: [.monday , .tuersday, .wednesday, .thursday, .friday, .saturday, .sunday]
-            ),
-            Tracker(
-                id: UUID(),
-                title: "Лечь спать до 12ти",
-                color: .ypColorSelection8,
-                emoji: "😪",
-                schedule: [.monday, .wednesday, .thursday]
-            ),
-            Tracker(
-                id: UUID(),
-                title: "Помечтать о пятнице",
-                color: .ypColorSelection12,
-                emoji: "🎸",
-                schedule: [.monday]
-            )
+//            )
         ]
     )]
-    
-    private init() {
-        
-    }
     
     func getCategoriesCount() -> Int {
         trackers.count
@@ -88,5 +83,9 @@ final class TrackersService {
         
         return visibleCategories
     }
+    
+    // MARK: - Private Methods
+    
+    private init() { }
     
 }
