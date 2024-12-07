@@ -1,20 +1,21 @@
 //
-//  CreateNewHabitViewController.swift
+//  CreateNewEventViewController.swift
 //  Tracker
 //
-//  Created by Olga Trofimova on 29.11.2024.
+//  Created by Olga Trofimova on 07.12.2024.
 //
 
 import UIKit
 
-final class CreateNewHabitViewController: UIViewController {
+final class CreateNewEventViewController: UIViewController {
     
     private let trackersService = TrackersService.shared
     private var categoryName: String?
-    private var schedule: [WeekDay] = []
-    private let buttonsName: [String] = ["Категория", "Расписание"]
-    private let reuseIdentifier: String = "newTrackerCell"
+    // событие должно переноситься на следующий день, если не выполнено
+    private var schedule: [WeekDay] = WeekDay.allCases
     private let isHabit: Bool = false
+    private let buttonsName: [String] = ["Категория"]
+    private let reuseIdentifier: String = "newEventCell"
     private let maximumTextCount: Int = 38
     
     private lazy var textField: UITextField = {
@@ -109,7 +110,7 @@ final class CreateNewHabitViewController: UIViewController {
     private func setupViews() {
         view.backgroundColor = .ypWhite
         view.addSubviews([textStackView, tableView, buttonStackView])
-        navigationItem.title = "Новая привычка"
+        navigationItem.title = "Новое нерегулярное событие"
         cautionLabel.isHidden = true
     }
     
@@ -123,7 +124,7 @@ final class CreateNewHabitViewController: UIViewController {
             tableView.topAnchor.constraint(equalTo: textStackView.bottomAnchor, constant: 24),
             tableView.leadingAnchor.constraint(equalTo: textStackView.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: textStackView.trailingAnchor),
-            tableView.heightAnchor.constraint(equalToConstant: 150),
+            tableView.heightAnchor.constraint(equalToConstant: 75),
             
             buttonStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             view.trailingAnchor.constraint(equalTo: buttonStackView.trailingAnchor, constant: 20),
@@ -140,13 +141,6 @@ final class CreateNewHabitViewController: UIViewController {
         navigationController?.present(newNavController, animated: true)
     }
     
-    private func showCreateScheduleViewController() {
-        let scheduleViewController = CreateScheduleViewController()
-        scheduleViewController.delegate = self
-        let newNavController = UINavigationController(rootViewController: scheduleViewController)
-        navigationController?.present(newNavController, animated: true)
-    }
-    
     private func enableCreateButton() {
         let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
         let category = categoryName?.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -155,12 +149,11 @@ final class CreateNewHabitViewController: UIViewController {
               let category = category,
               !text.isEmpty,
               !category.isEmpty,
-              !schedule.isEmpty,
               text.count <= maximumTextCount
         else { return }
         
-            createButton.backgroundColor = .ypBlack
-            createButton.isEnabled = true
+        createButton.backgroundColor = .ypBlack
+        createButton.isEnabled = true
     }
     
     @objc
@@ -175,7 +168,7 @@ final class CreateNewHabitViewController: UIViewController {
             color: emojisAndColors.randomColor(),
             emoji: emojisAndColors.randomEmoji(),
             schedule: schedule,
-            isHabit: !isHabit
+            isHabit: isHabit
         )
         
         trackersService.addTracker(tracker: newTracker, for: categoryName)
@@ -189,7 +182,7 @@ final class CreateNewHabitViewController: UIViewController {
     
 }
 
-extension CreateNewHabitViewController: UITableViewDataSource {
+extension CreateNewEventViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return buttonsName.count
     }
@@ -201,23 +194,9 @@ extension CreateNewHabitViewController: UITableViewDataSource {
         cell.backgroundColor = .ypBackgroundDay
         cell.selectionStyle = .none
         cell.detailTextLabel?.textColor = .ypGray
+        cell.detailTextLabel?.text = categoryName
         cell.detailTextLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        
-        let item = buttonsName[indexPath.row]
-        if item == "Категория" {
-            cell.detailTextLabel?.text = categoryName
-        } else if item == "Расписание" && !schedule.isEmpty {
-            if schedule.count == 7 {
-                cell.detailTextLabel?.text = "Каждый день"
-            } else {
-                var daysForTitle: [String] = []
-                for days in schedule {
-                    daysForTitle.append(days.getShortDay())
-                    cell.detailTextLabel?.text = daysForTitle.joined(separator: ", ")
-                }
-            }
-        }
         
         if indexPath.row == buttonsName.count - 1 {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
@@ -226,18 +205,13 @@ extension CreateNewHabitViewController: UITableViewDataSource {
     }
 }
 
-extension CreateNewHabitViewController: UITableViewDelegate {
+extension CreateNewEventViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let item = buttonsName[indexPath.row]
-        if item == "Категория" {
-            showCreateCategoryViewController()
-        } else if item == "Расписание" {
-            showCreateScheduleViewController()
-        }
+        showCreateCategoryViewController()
     }
 }
 
-extension CreateNewHabitViewController: UITextFieldDelegate {
+extension CreateNewEventViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         enableCreateButton()
@@ -254,17 +228,9 @@ extension CreateNewHabitViewController: UITextFieldDelegate {
     }
 }
 
-extension CreateNewHabitViewController: SelectedCategoryDelegate {
+extension CreateNewEventViewController: SelectedCategoryDelegate {
     func categoryDidSelect(name: String) {
         categoryName = name
-        tableView.reloadData()
-        enableCreateButton()
-    }
-}
-
-extension CreateNewHabitViewController: SelectedScheduleDelegate {
-    func didSelectSchedule(for days: [WeekDay]) {
-        schedule = days
         tableView.reloadData()
         enableCreateButton()
     }

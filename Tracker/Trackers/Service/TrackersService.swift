@@ -18,29 +18,34 @@ final class TrackersService {
     private(set) var trackers: [TrackerCategory] = [TrackerCategory(
         title: "Важное",
         trackers: [
-//            Tracker(
-//                id: UUID(),
-//                title: "Погладить кота",
-//                color: .ypColorSelection15,
-//                emoji: "😻",
-//                schedule: [.monday , .tuersday, .saturday, .sunday]
-//            ),
-//            Tracker(
-//                id: UUID(),
-//                title: "Лечь спать до 12ти",
-//                color: .ypColorSelection8,
-//                emoji: "😪",
-//                schedule: [.monday, .wednesday, .thursday]
-//            ),
-//            Tracker(
-//                id: UUID(),
-//                title: "Помечтать о пятнице",
-//                color: .ypColorSelection12,
-//                emoji: "🎸",
-//                schedule: [.monday]
-//            )
+            Tracker(
+                id: UUID(),
+                title: "Погладить кота",
+                color: .ypColorSelection15,
+                emoji: "😻",
+                schedule: [.monday , .tuersday, .saturday, .sunday],
+                isHabit: true
+            ),
+            Tracker(
+                id: UUID(),
+                title: "Лечь спать до 12ти",
+                color: .ypColorSelection8,
+                emoji: "😪",
+                schedule: [.monday, .wednesday, .thursday],
+                isHabit: true
+            ),
+            Tracker(
+                id: UUID(),
+                title: "Помечтать о пятнице",
+                color: .ypColorSelection12,
+                emoji: "🎸",
+                schedule: [.monday],
+                isHabit: true
+            )
         ]
     )]
+    
+    // MARK: - Public Methods
     
     func getCategoriesCount() -> Int {
         trackers.count
@@ -61,27 +66,36 @@ final class TrackersService {
         trackers.append(category)
     }
     
-    func getVisibleCategoriesForDate(_ date: Date) -> [TrackerCategory] {
-        let weekday = Calendar.current.component(.weekday, from: date)
+    func getVisibleCategoriesForDate(_ selectedDate: Date, recordTracker: Set<TrackerRecord>) -> [TrackerCategory] {
+        let weekday = Calendar.current.component(.weekday, from: selectedDate)
         let filterWeekday = weekday == 1 ? 7 : weekday - 1
-        var visibleCategories = [TrackerCategory]()
-        
-        visibleCategories = trackers.compactMap { category in
-            let filteredTrackers = category.trackers.filter { tracker in
+        var allVisibleCategories = [TrackerCategory]()
+
+        allVisibleCategories = trackers.compactMap { category in
+            let allFilteredTrackers = category.trackers.filter { tracker in
                 tracker.schedule.contains { weekday in
                     return weekday.rawValue == filterWeekday
-                    
                 }
             }
     
-            if filteredTrackers.isEmpty {
+            let filteredEventTrackers = allFilteredTrackers.filter { tracker in
+                if !recordTracker.isEmpty, !tracker.isHabit {
+                    return recordTracker.contains { trackerRecord in
+                        return trackerRecord.date == selectedDate
+                    }
+                }
+                
+                return true
+            }
+            
+            if filteredEventTrackers.isEmpty {
                 return nil
             }
             
-            return TrackerCategory(title: category.title, trackers: filteredTrackers)
+            return TrackerCategory(title: category.title, trackers: filteredEventTrackers)
         }
         
-        return visibleCategories
+        return allVisibleCategories
     }
     
     // MARK: - Private Methods

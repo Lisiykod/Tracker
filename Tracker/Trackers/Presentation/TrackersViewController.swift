@@ -13,6 +13,7 @@ final class TrackersViewController: UIViewController {
     private var categories: [TrackerCategory] = []
     private var completedTrackers: Set<TrackerRecord> = []
     private var currentDate: Date = Date()
+    private var recordDate: Date?
     
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
@@ -63,14 +64,14 @@ final class TrackersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         trackerService.delegate = self
-        updateVisibleCategoryForSelectedDay(currentDate)
+        updateVisibleCategoryForSelectedDay(currentDate, recordTracker: completedTrackers)
         setupViews()
         setupNavigationBar()
         setupConstraints()
     }
     
-    func updateVisibleCategoryForSelectedDay(_ day: Date) {
-        categories = trackerService.getVisibleCategoriesForDate(day)
+    func updateVisibleCategoryForSelectedDay(_ day: Date, recordTracker: Set<TrackerRecord>) {
+        categories = trackerService.getVisibleCategoriesForDate(day, recordTracker: recordTracker)
         makeViewVisible()
         collection.reloadData()
     }
@@ -130,7 +131,7 @@ final class TrackersViewController: UIViewController {
     private func datePickerValueChanged(_ sender: UIDatePicker) {
         let selectedDate = sender.date
         currentDate = selectedDate
-        updateVisibleCategoryForSelectedDay(selectedDate)
+        updateVisibleCategoryForSelectedDay(selectedDate, recordTracker: completedTrackers)
         
     }
     
@@ -232,7 +233,7 @@ extension TrackersViewController: CompletedTrackerDelegate {
 
 extension TrackersViewController: TrackersServiceDelegate {
     func updateTrackers() {
-        updateVisibleCategoryForSelectedDay(currentDate)
+        updateVisibleCategoryForSelectedDay(currentDate, recordTracker: completedTrackers)
     }
 }
 
