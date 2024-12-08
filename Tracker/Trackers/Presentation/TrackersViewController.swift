@@ -13,7 +13,6 @@ final class TrackersViewController: UIViewController {
     private var categories: [TrackerCategory] = []
     private var completedTrackers: Set<TrackerRecord> = []
     private var currentDate: Date = Date()
-    private var recordDate: Date?
     
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
@@ -177,7 +176,8 @@ extension TrackersViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader , withReuseIdentifier: "header", for: indexPath) as? HeaderSupplementaryView
         guard let header else { return UICollectionReusableView() }
-        header.headerLabel.text = categories[indexPath.section].title
+        header.configureHeader(with: categories[indexPath.section].title)
+//        header.headerLabel.text = categories[indexPath.section].title
         return header
     }
     
@@ -217,13 +217,15 @@ extension TrackersViewController: UISearchControllerDelegate {
 extension TrackersViewController: CompletedTrackerDelegate {
     
     func appendTrackerRecord(tracker id: UUID, at indexPath: IndexPath) {
-        let trackerRecord = TrackerRecord(id: id, date: currentDate)
+        guard let date = currentDate.ignoringTime else { return }
+        let trackerRecord = TrackerRecord(id: id, date: date)
         completedTrackers.insert(trackerRecord)
         collection.reloadItems(at: [indexPath])
     }
     
     func removeTrackerRecord(tracker id: UUID, at indexPath: IndexPath) {
-        let trackerRecord = TrackerRecord(id: id, date: currentDate)
+        guard let date = currentDate.ignoringTime else { return }
+        let trackerRecord = TrackerRecord(id: id, date: date)
         if completedTrackers.contains(trackerRecord) {
             completedTrackers.remove(trackerRecord)
         }

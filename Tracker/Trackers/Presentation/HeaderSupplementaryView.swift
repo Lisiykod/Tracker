@@ -9,12 +9,14 @@ import UIKit
 
 final class HeaderSupplementaryView: UICollectionReusableView {
     
-    lazy var headerLabel: UILabel = {
+    private lazy var headerLabel: UILabel = {
         let label = UILabel()
         label.textColor = .ypBlack
         label.font = UIFont.systemFont(ofSize: 19, weight: .bold)
         return label
     }()
+    
+    // MARK: - Life cycle
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -25,6 +27,14 @@ final class HeaderSupplementaryView: UICollectionReusableView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // MARK: - Public Methods
+    
+    func configureHeader(with text: String) {
+        headerLabel.text = text
+    }
+    
+    // MARK: - Private Methods
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([

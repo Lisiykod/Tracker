@@ -82,7 +82,13 @@ final class TrackerCollectionCell: UICollectionViewCell {
     
     // MARK: - Public Methods
     
-    func configureCell(with tracker: Tracker, isCompleted: Bool, selectedDate: Date, daysCount: Int, at indexPath: IndexPath) {
+    func configureCell(
+        with tracker: Tracker,
+        isCompleted: Bool,
+        selectedDate: Date,
+        daysCount: Int,
+        at indexPath: IndexPath
+    ) {
         titleLabel.text = tracker.title
         colorView.backgroundColor = tracker.color
         plusButton.backgroundColor = tracker.color

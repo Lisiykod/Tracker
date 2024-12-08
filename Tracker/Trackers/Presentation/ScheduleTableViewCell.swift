@@ -16,21 +16,23 @@ final class ScheduleTableViewCell: UITableViewCell {
     
     static let reuseIdentifier = "scheduleCell"
     
-    var day: Int?
     weak var delegate: WeekDayDelegate?
     
-    lazy var label: UILabel = {
+    private var day: Int?
+    private lazy var label: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         return label
     }()
     
-    lazy var switchControl: UISwitch = {
+    private lazy var switchControl: UISwitch = {
         let switchControl = UISwitch()
         switchControl.onTintColor = .ypBlue
         switchControl.addTarget(self, action: #selector(selectChanged), for: .valueChanged)
         return switchControl
     }()
+    
+    // MARK: - Life cycle
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -42,6 +44,16 @@ final class ScheduleTableViewCell: UITableViewCell {
         super.init(coder: coder)
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // MARK: - Private Methods
+    
+    func configureCell(with dayName: String, day: Int, switchStatus: Bool) {
+        label.text = dayName
+        self.day = day
+        switchControl.isOn = switchStatus
+    }
+    
+    // MARK: - Private Methods
     
     private func setupCell() {
         contentView.addSubviews([label, switchControl])

@@ -18,30 +18,30 @@ final class TrackersService {
     private(set) var trackers: [TrackerCategory] = [TrackerCategory(
         title: "Важное",
         trackers: [
-            Tracker(
-                id: UUID(),
-                title: "Погладить кота",
-                color: .ypColorSelection15,
-                emoji: "😻",
-                schedule: [.monday , .tuersday, .saturday, .sunday],
-                isHabit: true
-            ),
-            Tracker(
-                id: UUID(),
-                title: "Лечь спать до 12ти",
-                color: .ypColorSelection8,
-                emoji: "😪",
-                schedule: [.monday, .wednesday, .thursday],
-                isHabit: true
-            ),
-            Tracker(
-                id: UUID(),
-                title: "Помечтать о пятнице",
-                color: .ypColorSelection12,
-                emoji: "🎸",
-                schedule: [.monday],
-                isHabit: true
-            )
+//            Tracker(
+//                id: UUID(),
+//                title: "Погладить кота",
+//                color: .ypColorSelection15,
+//                emoji: "😻",
+//                schedule: [.monday , .tuersday, .saturday, .sunday],
+//                isHabit: true
+//            ),
+//            Tracker(
+//                id: UUID(),
+//                title: "Лечь спать до 12ти",
+//                color: .ypColorSelection8,
+//                emoji: "😪",
+//                schedule: [.monday, .wednesday, .thursday],
+//                isHabit: true
+//            ),
+//            Tracker(
+//                id: UUID(),
+//                title: "Помечтать о пятнице",
+//                color: .ypColorSelection12,
+//                emoji: "🎸",
+//                schedule: [.monday],
+//                isHabit: true
+//            )
         ]
     )]
     

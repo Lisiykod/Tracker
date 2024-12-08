@@ -66,16 +66,6 @@ final class CreateScheduleViewController: UIViewController {
         ])
     }
     
-    private func configureCell(with cell: ScheduleTableViewCell, for indexPath: IndexPath) {
-        cell.label.text = weekDay[indexPath.row].getFullDay()
-        cell.switchControl.isOn = false
-        cell.day = weekDay[indexPath.row].rawValue - 1
-        
-        if indexPath.row == weekDay.count - 1 {
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: UIScreen.main.bounds.width)
-        }
-    }
-    
     @objc
     private func createNewSchedule() {
         let sortedDay = selectedDays.sorted { $0.rawValue < $1.rawValue }
@@ -98,7 +88,16 @@ extension CreateScheduleViewController: UITableViewDataSource {
         }
        
         scheduleCell.delegate = self
-        configureCell(with: scheduleCell, for: indexPath)
+        let dayName = weekDay[indexPath.row].getFullDay()
+        let switchStatus = false
+        let day = weekDay[indexPath.row].rawValue - 1
+        
+        scheduleCell.configureCell(with: dayName, day: day, switchStatus: switchStatus)
+        
+        if indexPath.row == weekDay.count - 1 {
+            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: UIScreen.main.bounds.width)
+        }
+        
         return scheduleCell
     }
     
