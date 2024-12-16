@@ -92,7 +92,7 @@ final class TrackersViewController: UIViewController {
             datePicker.widthAnchor.constraint(equalToConstant: 100),
             
             collection.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collection.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collection.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
             collection.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collection.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
@@ -115,6 +115,9 @@ final class TrackersViewController: UIViewController {
         if !categories.isEmpty {
             emptyImageTrackersStackView.isHidden = true
             collection.isHidden = false
+        } else {
+            emptyImageTrackersStackView.isHidden = false
+            collection.isHidden = true
         }
     }
     
@@ -128,10 +131,11 @@ final class TrackersViewController: UIViewController {
     
     @objc
     private func datePickerValueChanged(_ sender: UIDatePicker) {
-        let selectedDate = sender.date
+        let selectedDate = sender.date.ignoringTime
+        guard let selectedDate else { return }
         currentDate = selectedDate
         updateVisibleCategoryForSelectedDay(selectedDate, recordTracker: completedTrackers)
-        
+        print("tracker Record :\(completedTrackers)")
     }
     
     private func checkedTrackerIsCompleted(id: UUID) -> Bool {
@@ -177,7 +181,6 @@ extension TrackersViewController: UICollectionViewDataSource {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader , withReuseIdentifier: "header", for: indexPath) as? HeaderSupplementaryView
         guard let header else { return UICollectionReusableView() }
         header.configureHeader(with: categories[indexPath.section].title)
-//        header.headerLabel.text = categories[indexPath.section].title
         return header
     }
     
@@ -205,7 +208,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 24, left: 16, bottom: 0, right: 16)
+        return UIEdgeInsets(top: 12, left: 16, bottom: 16, right: 16)
     }
     
 }
@@ -218,6 +221,7 @@ extension TrackersViewController: CompletedTrackerDelegate {
     
     func appendTrackerRecord(tracker id: UUID, at indexPath: IndexPath) {
         guard let date = currentDate.ignoringTime else { return }
+        print("date \(date)")
         let trackerRecord = TrackerRecord(id: id, date: date)
         completedTrackers.insert(trackerRecord)
         collection.reloadItems(at: [indexPath])

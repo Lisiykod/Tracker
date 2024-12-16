@@ -20,30 +20,39 @@ final class TrackersService {
         trackers: [
 //            Tracker(
 //                id: UUID(),
-//                title: "Погладить кота",
+//                title: "Поспать",
 //                color: .ypColorSelection15,
 //                emoji: "😻",
-//                schedule: [.monday , .tuersday, .saturday, .sunday],
-//                isHabit: true
+//                schedule: [.monday , .tuersday, .wednesday, .thursday, .friday, .saturday, .sunday],
+//                isHabit: false
 //            ),
-//            Tracker(
-//                id: UUID(),
-//                title: "Лечь спать до 12ти",
-//                color: .ypColorSelection8,
-//                emoji: "😪",
-//                schedule: [.monday, .wednesday, .thursday],
-//                isHabit: true
-//            ),
-//            Tracker(
-//                id: UUID(),
-//                title: "Помечтать о пятнице",
-//                color: .ypColorSelection12,
-//                emoji: "🎸",
-//                schedule: [.monday],
-//                isHabit: true
-//            )
+            Tracker(
+                id: UUID(),
+                title: "Погладить кота",
+                color: .ypColorSelection15,
+                emoji: "😻",
+                schedule: [.monday , .tuersday, .saturday, .sunday],
+                isHabit: true
+            ),
+            Tracker(
+                id: UUID(),
+                title: "Лечь спать до 12ти",
+                color: .ypColorSelection8,
+                emoji: "😪",
+                schedule: [.monday, .wednesday, .thursday],
+                isHabit: true
+            ),
+            Tracker(
+                id: UUID(),
+                title: "Помечтать о пятнице",
+                color: .ypColorSelection12,
+                emoji: "🎸",
+                schedule: [.monday],
+                isHabit: true
+            )
         ]
-    )]
+    )
+    ]
     
     // MARK: - Public Methods
     
@@ -54,9 +63,9 @@ final class TrackersService {
     func addTracker(tracker: Tracker, for category: String) {
         if let categoryIndex = trackers.firstIndex(where: { $0.title == category }) {
             let currentCategory = trackers[categoryIndex]
-            
+            let newTracker = currentCategory.trackers + [tracker]
             let newCategory = TrackerCategory(title: currentCategory.title,
-                                              trackers: currentCategory.trackers + [tracker])
+                                              trackers: newTracker)
             trackers[categoryIndex] = newCategory
         }
         delegate?.updateTrackers()
@@ -70,14 +79,14 @@ final class TrackersService {
         let weekday = Calendar.current.component(.weekday, from: selectedDate)
         let filterWeekday = weekday == 1 ? 7 : weekday - 1
         var allVisibleCategories = [TrackerCategory]()
-
+        
         allVisibleCategories = trackers.compactMap { category in
             let allFilteredTrackers = category.trackers.filter { tracker in
                 tracker.schedule.contains { weekday in
                     return weekday.rawValue == filterWeekday
                 }
             }
-    
+            
             let filteredEventTrackers = allFilteredTrackers.filter { tracker in
                 if !recordTracker.isEmpty, !tracker.isHabit {
                     return recordTracker.contains { trackerRecord in

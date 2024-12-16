@@ -1,15 +1,13 @@
 //
-//  HeaderSupplementaryView.swift
+//  EmojisOrColorHeaderView.swift
 //  Tracker
 //
-//  Created by Olga Trofimova on 02.12.2024.
+//  Created by Olga Trofimova on 13.12.2024.
 //
 
 import UIKit
 
-final class HeaderSupplementaryView: UICollectionReusableView {
-    
-//    private var isMainHeader: Bool = false
+final class EmojisOrColorHeaderView: UICollectionReusableView {
     
     private lazy var headerLabel: UILabel = {
         let label = UILabel()
@@ -18,14 +16,14 @@ final class HeaderSupplementaryView: UICollectionReusableView {
         return label
     }()
     
+    
     // MARK: - Life cycle
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubviews([headerLabel])
-        setupTrackersConstraints()
+        setupConstraints()
     }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -34,15 +32,14 @@ final class HeaderSupplementaryView: UICollectionReusableView {
     
     func configureHeader(with text: String) {
         headerLabel.text = text
-//        self.isMainHeader = isMainHeader
     }
     
     // MARK: - Private Methods
     
-    private func setupTrackersConstraints() {
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             headerLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 28),
-//            headerLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: isMainHeader ? 12 : 0)
+            headerLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0)
         ])
     }
 }
