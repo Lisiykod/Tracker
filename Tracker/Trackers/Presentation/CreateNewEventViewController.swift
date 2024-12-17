@@ -23,6 +23,10 @@ final class CreateNewEventViewController: UIViewController {
     private var emojiIndexPath: IndexPath?
     private var colorIndexPath: IndexPath?
     private let maximumTextCount: Int = 38
+    private let leftOrRightInset: CGFloat = 18
+    private let topOrBottomInset: CGFloat = 24
+    private let itemsSpacing: CGFloat = 5
+    private let itemsOnRow: CGFloat = 6
     
     private lazy var textField: UITextField = {
         let textField = BasicTextField(placeholder: "Введите название трекера")
@@ -267,7 +271,9 @@ extension CreateNewEventViewController: UICollectionViewDataSource {
         guard let cell else { return UICollectionViewCell() }
         if indexPath.section == 0 {
             cell.configureEmoji(with: emojis[indexPath.row])
-        } else if indexPath.section == 1 {
+        }
+        
+        if indexPath.section == 1 {
             cell.configureColor(with: colors[indexPath.row])
         }
         return cell
@@ -276,11 +282,12 @@ extension CreateNewEventViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "emojiOrColorHeader", for: indexPath) as? HeaderSupplementaryView
         guard let header else { return UICollectionReusableView()}
-        // TODO: - Подумать как лучше сделать без ифов
-        let section = indexPath.section // привести к единому виду
-        if section == 0 {
+        
+        if indexPath.section == 0 {
             header.configureHeader(with: "Emoji")
-        } else if section == 1 {
+        }
+        
+        if indexPath.section == 1 {
             header.configureHeader(with: "Цвет")
         }
         return header
@@ -301,16 +308,17 @@ extension CreateNewEventViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        // TODO: - вынести константы в переменные - 5 - отступы, 5 - количество отступов (количество элементов - 1), 36 - сум отступы от краев
-        return CGSize(width: (collectionView.bounds.width - 36 - (5 * 5))/6, height: 52)
+        return CGSize(
+            width: (collectionView.bounds.width - (leftOrRightInset * 2) - (itemsSpacing * (itemsOnRow - 1)))/itemsOnRow,
+            height: 52)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 5
+        return itemsSpacing
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 24, left: 18, bottom: 24, right: 18)
+        return UIEdgeInsets(top: topOrBottomInset, left: leftOrRightInset, bottom: topOrBottomInset, right: leftOrRightInset)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

@@ -22,6 +22,11 @@ final class CreateNewHabitViewController: UIViewController {
     private var emojiIndexPath: IndexPath?
     private var colorIndexPath: IndexPath?
     private let maximumTextCount: Int = 38
+    private let leftOrRightInset: CGFloat = 18
+    private let topOrBottomInset: CGFloat = 24
+    private let itemsSpacing: CGFloat = 5
+    private let itemsOnRow: CGFloat = 6
+    
     
     private lazy var textField: UITextField = {
         let textField = BasicTextField(placeholder: "Введите название трекера")
@@ -199,7 +204,7 @@ final class CreateNewHabitViewController: UIViewController {
             color: selectedColor,
             emoji: selectedEmoji,
             schedule: schedule,
-            isHabit: !isHabit
+            isHabit: isHabit
         )
         
         trackersService.addTracker(tracker: newTracker, for: categoryName)
@@ -330,16 +335,18 @@ extension CreateNewHabitViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        // TODO: - вынести константы в переменные - 5 - отступы, 5 - количество отступов (количество элементов - 1), 36 - сум отступы от краев
-        return CGSize(width: (collectionView.bounds.width - 36 - (5 * 5))/6, height: 52)
+        return CGSize(
+            width: (collectionView.bounds.width - (leftOrRightInset * 2) - (itemsSpacing * (itemsOnRow - 1)))/itemsOnRow,
+            height: 52
+        )
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 5
+        return itemsSpacing
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 24, left: 18, bottom: 24, right: 18)
+        return UIEdgeInsets(top: topOrBottomInset, left: leftOrRightInset, bottom: topOrBottomInset, right: leftOrRightInset)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

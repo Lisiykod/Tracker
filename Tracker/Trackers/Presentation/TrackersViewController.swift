@@ -135,7 +135,6 @@ final class TrackersViewController: UIViewController {
         guard let selectedDate else { return }
         currentDate = selectedDate
         updateVisibleCategoryForSelectedDay(selectedDate, recordTracker: completedTrackers)
-        print("tracker Record :\(completedTrackers)")
     }
     
     private func checkedTrackerIsCompleted(id: UUID) -> Bool {
