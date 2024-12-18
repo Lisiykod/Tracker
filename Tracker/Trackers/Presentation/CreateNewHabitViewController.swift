@@ -27,6 +27,10 @@ final class CreateNewHabitViewController: UIViewController {
     private let itemsSpacing: CGFloat = 5
     private let itemsOnRow: CGFloat = 6
     
+    private enum EmojisOrColors: Int {
+        case emojis = 0
+        case colors = 1
+    }
     
     private lazy var textField: UITextField = {
         let textField = BasicTextField(placeholder: "Введите название трекера")
@@ -122,7 +126,6 @@ final class CreateNewHabitViewController: UIViewController {
         super.viewWillAppear(animated)
         textField.becomeFirstResponder()
         tableView.reloadData()
-        print(schedule.count)
     }
     
     // MARK: - Private Methods
@@ -296,27 +299,34 @@ extension CreateNewHabitViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "emojiCell", for: indexPath) as? EmojisOrColorsCell
         guard let cell else { return UICollectionViewCell() }
-        if indexPath.section == 0 {
+        
+        let section = EmojisOrColors(rawValue: indexPath.section)
+        switch section {
+        case .emojis:
             cell.configureEmoji(with: emojis[indexPath.row])
-        }
-        
-        if indexPath.section == 1 {
+        case .colors:
             cell.configureColor(with: colors[indexPath.row])
+        case .none:
+            print("\(#function) not section")
         }
-        
+
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "emojiOrColorHeader", for: indexPath) as? HeaderSupplementaryView
         guard let header else { return UICollectionReusableView()}
-        if indexPath.section == 0 {
+        
+        let section = EmojisOrColors(rawValue: indexPath.section)
+        switch section {
+        case .emojis:
             header.configureHeader(with: "Emoji")
+        case .colors:
+            header.configureHeader(with: "Цвет")
+        case .none:
+            header.configureHeader(with: "")
         }
         
-        if indexPath.section == 1 {
-            header.configureHeader(with: "Цвет")
-        }
         return header
     }
     
@@ -351,7 +361,10 @@ extension CreateNewHabitViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as? EmojisOrColorsCell
-        if indexPath.section == 0 {
+        
+        let section = EmojisOrColors(rawValue: indexPath.section)
+        switch section {
+        case .emojis:
             if selectedEmoji != nil {
                 guard let previewCellIndex = emojiIndexPath else { return }
                 let newCell = collectionView.cellForItem(at: previewCellIndex) as? EmojisOrColorsCell
@@ -360,9 +373,7 @@ extension CreateNewHabitViewController: UICollectionViewDelegateFlowLayout {
             cell?.selectedEmoji()
             selectedEmoji = emojis[indexPath.row]
             emojiIndexPath = indexPath
-        }
-        
-        if indexPath.section == 1 {
+        case .colors:
             if selectedColor != nil {
                 guard let previewCellIndex = colorIndexPath else { return }
                 let newCell = collectionView.cellForItem(at: previewCellIndex) as? EmojisOrColorsCell
@@ -371,6 +382,8 @@ extension CreateNewHabitViewController: UICollectionViewDelegateFlowLayout {
             cell?.selectedColor(with: colors[indexPath.row])
             selectedColor = colors[indexPath.row]
             colorIndexPath = indexPath
+        case .none:
+            print("not items for selection")
         }
         
         enableCreateButton()
