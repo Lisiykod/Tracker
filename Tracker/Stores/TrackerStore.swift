@@ -16,7 +16,7 @@ final class TrackerStore: NSObject {
     private let context: NSManagedObjectContext
     private let colorMarshalling = UIColorMarshalling()
     
-    private lazy var fetchedResultController: NSFetchedResultsController<TrackerCoreData> = {
+    private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCoreData> = {
         let fetchRequest = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \TrackerCoreData.title, ascending: true)]
         let controller = NSFetchedResultsController(
@@ -26,7 +26,7 @@ final class TrackerStore: NSObject {
             cacheName: nil
         )
         controller.delegate = self
-        self.fetchedResultController = controller
+        self.fetchedResultsController = controller
         try? controller.performFetch()
         return controller
     }()
@@ -53,7 +53,7 @@ final class TrackerStore: NSObject {
     }
     
     func fetchTrackers() -> [Tracker] {
-        guard let object = fetchedResultController.fetchedObjects,
+        guard let object = fetchedResultsController.fetchedObjects,
               let tracker = try? object.map ({ try getTracker(from: $0)})
         else { return [] }
         return tracker

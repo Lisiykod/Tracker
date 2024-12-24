@@ -16,8 +16,7 @@ final class TrackersService {
     weak var delegate: TrackersServiceDelegate?
     
     private let trackerCategoryStore = TrackerCategoryStore()
-    
-    private(set) var trackers: [TrackerCategory] = []
+    private var trackerRecordStore = TrackerRecordStore()
     
     private(set) var categoryExample: [TrackerCategory] = [TrackerCategory(
         title: "Важное",
@@ -61,7 +60,7 @@ final class TrackersService {
     // MARK: - Public Methods
     
     func getCategoriesCount() -> Int {
-        trackers.count
+        trackerCategoryStore.numberOfSections
     }
     
     func getCategoriesExampleCount() -> Int {
@@ -82,7 +81,6 @@ final class TrackersService {
         let filterWeekday = weekday == 1 ? 7 : weekday - 1
         let fecthTrackers = fetchCategories()
         var allVisibleCategories = [TrackerCategory]()
-        print("trackers \(fecthTrackers)")
         
         allVisibleCategories = fecthTrackers.compactMap { category in
             let allFilteredTrackers = category.trackers.filter { tracker in
@@ -107,7 +105,6 @@ final class TrackersService {
                 return true
             }
         
-            
             if  filteredEventTrackers.isEmpty {
                 return nil
             }
@@ -116,6 +113,18 @@ final class TrackersService {
         }
         
         return allVisibleCategories
+    }
+    
+    func addRecord(_ record: TrackerRecord) {
+        trackerRecordStore.addRecord(record)
+    }
+    
+    func deleteRecord(_ record: TrackerRecord) {
+        trackerRecordStore.deleteRecord(record)
+    }
+    
+    func fetchRecords() -> Set<TrackerRecord> {
+        trackerRecordStore.fetchRecords()
     }
     
     // MARK: - Private Methods

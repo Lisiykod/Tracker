@@ -13,10 +13,15 @@ enum TrackerCategoryStoreError: Error {
 }
 
 final class TrackerCategoryStore: NSObject {
+    
+    var numberOfSections: Int {
+        fetchedResultsController.sections?.count ?? 0
+    }
+    
     private let context: NSManagedObjectContext
     private let trackerStore = TrackerStore()
     
-    private lazy var fetchedResultController: NSFetchedResultsController<TrackerCategoryCoreData> = {
+    private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData> = {
         let fetchRequest = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \TrackerCategoryCoreData.title, ascending: true)]
         let controller = NSFetchedResultsController(
@@ -26,7 +31,7 @@ final class TrackerCategoryStore: NSObject {
             cacheName: nil
         )
         controller.delegate = self
-        self.fetchedResultController = controller
+        self.fetchedResultsController = controller
         try? controller.performFetch()
         return controller
     }()
@@ -42,7 +47,7 @@ final class TrackerCategoryStore: NSObject {
     
     func addCategory(_ category: TrackerCategory) {
         let trackerCategory = TrackerCategoryCoreData(context: context)
-        guard let categoryFetch = fetchedResultController.fetchedObjects else {
+        guard let categoryFetch = fetchedResultsController.fetchedObjects else {
             return
         }
         
@@ -84,18 +89,17 @@ final class TrackerCategoryStore: NSObject {
     }
     
     func fetchCategories() throws -> [TrackerCategory] {
-        guard let object = fetchedResultController.fetchedObjects,
+        guard let object = fetchedResultsController.fetchedObjects,
               let categories = try? object.map({ try getCategory(from: $0)})
         else {
             return []
         }
-//        print("categories \(categories)")
         return categories
     }
     
     func addTrackerToCategory(_ tracker: Tracker, category title: String) {
         let tracker = trackerStore.addTracker(tracker)
-        let category = fetchedResultController.fetchedObjects?.first(where: {$0.title == title} )
+        let category = fetchedResultsController.fetchedObjects?.first(where: {$0.title == title} )
         category?.addToTrackers(tracker)
         saveContext()
     }
