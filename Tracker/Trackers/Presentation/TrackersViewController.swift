@@ -11,6 +11,7 @@ final class TrackersViewController: UIViewController {
     
     private let trackerService = TrackersService.shared
     private var categories: [TrackerCategory] = []
+    private var trackerRecordStore = TrackerRecordStore()
     private var completedTrackers: Set<TrackerRecord> = []
     private var currentDate: Date = Date()
     
@@ -63,6 +64,7 @@ final class TrackersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         trackerService.delegate = self
+        completedTrackers = trackerRecordStore.fetchRecords()
         updateVisibleCategoryForSelectedDay(currentDate, recordTracker: completedTrackers)
         setupViews()
         setupNavigationBar()
@@ -134,6 +136,7 @@ final class TrackersViewController: UIViewController {
         let selectedDate = sender.date.ignoringTime
         guard let selectedDate else { return }
         currentDate = selectedDate
+        completedTrackers = trackerRecordStore.fetchRecords()
         updateVisibleCategoryForSelectedDay(selectedDate, recordTracker: completedTrackers)
     }
     
@@ -220,9 +223,9 @@ extension TrackersViewController: CompletedTrackerDelegate {
     
     func appendTrackerRecord(tracker id: UUID, at indexPath: IndexPath) {
         guard let date = currentDate.ignoringTime else { return }
-        print("date \(date)")
         let trackerRecord = TrackerRecord(id: id, date: date)
-        completedTrackers.insert(trackerRecord)
+        trackerRecordStore.addRecord(trackerRecord)
+        completedTrackers = trackerRecordStore.fetchRecords()
         collection.reloadItems(at: [indexPath])
     }
     
@@ -230,7 +233,8 @@ extension TrackersViewController: CompletedTrackerDelegate {
         guard let date = currentDate.ignoringTime else { return }
         let trackerRecord = TrackerRecord(id: id, date: date)
         if completedTrackers.contains(trackerRecord) {
-            completedTrackers.remove(trackerRecord)
+            trackerRecordStore.deleteRecord(trackerRecord)
+            completedTrackers = trackerRecordStore.fetchRecords()
         }
         collection.reloadItems(at: [indexPath])
     }
@@ -238,6 +242,7 @@ extension TrackersViewController: CompletedTrackerDelegate {
 
 extension TrackersViewController: TrackersServiceDelegate {
     func updateTrackers() {
+        completedTrackers = trackerRecordStore.fetchRecords()
         updateVisibleCategoryForSelectedDay(currentDate, recordTracker: completedTrackers)
     }
 }

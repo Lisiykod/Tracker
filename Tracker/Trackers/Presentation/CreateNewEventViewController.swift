@@ -12,7 +12,7 @@ final class CreateNewEventViewController: UIViewController {
     private let trackersService = TrackersService.shared
     private var categoryName: String?
     // событие должно переноситься на следующий день, если не выполнено
-    private var schedule: [WeekDay] = WeekDay.allCases
+    private var schedule: [WeekDay] = [.monday, .tuersday, .wednesday, .thursday, .friday, .saturday, .sunday]
     private let isHabit: Bool = false
     private let buttonsName: [String] = ["Категория"]
     private let reuseIdentifier: String = "newEventCell"
@@ -203,7 +203,8 @@ final class CreateNewEventViewController: UIViewController {
             schedule: schedule,
             isHabit: isHabit
         )
-        
+        // TODO: - удалить, когда будет реализовано добавление новой категории
+        trackersService.addCategory(TrackerCategory(title: categoryName, trackers: []))
         trackersService.addTracker(tracker: newTracker, for: categoryName)
         view?.window?.rootViewController?.dismiss(animated: true)
     }
