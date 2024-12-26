@@ -8,16 +8,19 @@
 import UIKit
 import CoreData
 
-enum TrackerRecordStoreError: Error {
-    case decodingError
-}
 
 final class TrackerRecordStore {
     
+    private enum TrackerRecordStoreError: Error {
+        case decodingError
+    }
+    
     private let context: NSManagedObjectContext
     
+    // MARK: - Initializers
+    
     convenience init() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        let context = DataBaseService.shaired.context
         self.init(context: context)
     }
     
@@ -25,11 +28,13 @@ final class TrackerRecordStore {
         self.context = context
     }
     
+    // MARK: - Public Methods
+    
     func addRecord(_ record: TrackerRecord) {
         let trackerRecord = TrackerRecordCoreData(context: context)
         trackerRecord.date = record.date
         trackerRecord.id = record.id
-        saveContext()
+        DataBaseService.shaired.saveContext()
     }
     
     func fetchRecords() -> Set<TrackerRecord> {
@@ -46,13 +51,15 @@ final class TrackerRecordStore {
         let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
         request.predicate = NSPredicate(format: "id == %@ AND date == %@", record.id as CVarArg, record.date as CVarArg)
         let trackerRecordsFromCoreData = try? context.fetch(request)
-        if let recordForRemove = trackerRecordsFromCoreData?.first {
-            context.delete(recordForRemove)
-            saveContext()
+        if let recordForDelete = trackerRecordsFromCoreData?.first {
+            context.delete(recordForDelete)
+            DataBaseService.shaired.saveContext()
         }
     }
     
-    func getRecord(from trackerRecordCoreData: TrackerRecordCoreData) throws -> TrackerRecord {
+    // MARK: - Private Methods
+    
+    private func getRecord(from trackerRecordCoreData: TrackerRecordCoreData) throws -> TrackerRecord {
         guard let id = trackerRecordCoreData.id,
               let date = trackerRecordCoreData.date else {
             throw TrackerRecordStoreError.decodingError
@@ -62,14 +69,4 @@ final class TrackerRecordStore {
         return trackerRecord
     }
     
-    private func saveContext() {
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                print("\(#file): \(#function): Error saving context: \(error.localizedDescription)")
-                context.rollback()
-            }
-        }
-    }
 }

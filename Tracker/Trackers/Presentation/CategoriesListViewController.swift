@@ -123,16 +123,12 @@ final class CategoriesListViewController: UIViewController {
     
     @objc
     private func addCategory() {
-//        let createCategoryVC = CreateCategoryViewController()
-//        createCategoryVC.delegate = self
-//        let newNavController = UINavigationController(rootViewController: createCategoryVC)
-//        navigationController?.present(newNavController, animated: true)
+        // TODO: - здесь будет код с переходом на экран создания категории
     }
 }
 
 extension CategoriesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return trackersService.getCategoriesCount()
         return trackersService.getCategoriesExampleCount()
     }
     
@@ -144,7 +140,6 @@ extension CategoriesListViewController: UITableViewDataSource {
         cell.accessoryType = isSelectedCategory ? .checkmark : .none
         cell.selectionStyle = .none
         cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-//        if trackersService.getCategoriesCount() == 1 {
         if trackersService.getCategoriesExampleCount() == 1 {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
             tableView.isScrollEnabled = false
@@ -155,9 +150,6 @@ extension CategoriesListViewController: UITableViewDataSource {
 }
 
 extension CategoriesListViewController: UITableViewDelegate {
-//    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//        tableView.reloadRows(at: [indexPath], with: .automatic)
-//    }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let cell = tableView.cellForRow(at: indexPath) {
@@ -173,9 +165,6 @@ extension CategoriesListViewController: UITableViewDelegate {
         }
     }
     
-//    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-//        <#code#>
-//    }
 }
 
 extension CategoriesListViewController: CreateNewCategoryDelegate  {

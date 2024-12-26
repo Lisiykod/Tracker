@@ -8,14 +8,15 @@
 import UIKit
 import CoreData
 
-enum TrackerCategoryStoreError: Error {
-    case decodingError
-}
 
 final class TrackerCategoryStore: NSObject {
     
     var numberOfSections: Int {
         fetchedResultsController.sections?.count ?? 0
+    }
+    
+    private enum TrackerCategoryStoreError: Error {
+        case decodingError
     }
     
     private let context: NSManagedObjectContext
@@ -36,14 +37,18 @@ final class TrackerCategoryStore: NSObject {
         return controller
     }()
     
+    // MARK: - Initializers
+    
     convenience override init() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        let context = DataBaseService.shaired.context
         self.init(context: context)
     }
     
     init(context: NSManagedObjectContext) {
         self.context = context
     }
+    
+    // MARK: - Public Methods
     
     func addCategory(_ category: TrackerCategory) {
         let trackerCategory = TrackerCategoryCoreData(context: context)
@@ -60,10 +65,30 @@ final class TrackerCategoryStore: NSObject {
             trackerCategory.trackers = []
         }
         
-        saveContext()
+        DataBaseService.shaired.saveContext()
     }
     
-    func getCategory(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> TrackerCategory {
+    func fetchCategories() throws -> [TrackerCategory] {
+        guard let object = fetchedResultsController.fetchedObjects,
+              let categories = try? object.map({ try getCategory(from: $0)})
+        else {
+            return []
+        }
+        return categories
+    }
+    
+    func addTrackerToCategory(_ tracker: Tracker, category title: String) {
+        let tracker = trackerStore.addTracker(tracker)
+        let category = fetchedResultsController.fetchedObjects?.first(where: {$0.title == title} )
+        category?.addToTrackers(tracker)
+        DataBaseService.shaired.saveContext()
+    }
+    
+    // TODO: - добавить метод удаления категории
+    
+    // MARK: - Private Methods
+    
+    private func getCategory(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> TrackerCategory {
         guard let title = trackerCategoryCoreData.title else {
             throw TrackerCategoryStoreError.decodingError
         }
@@ -86,35 +111,6 @@ final class TrackerCategoryStore: NSObject {
         }
         
         return TrackerCategory(title: title, trackers: trackers)
-    }
-    
-    func fetchCategories() throws -> [TrackerCategory] {
-        guard let object = fetchedResultsController.fetchedObjects,
-              let categories = try? object.map({ try getCategory(from: $0)})
-        else {
-            return []
-        }
-        return categories
-    }
-    
-    func addTrackerToCategory(_ tracker: Tracker, category title: String) {
-        let tracker = trackerStore.addTracker(tracker)
-        let category = fetchedResultsController.fetchedObjects?.first(where: {$0.title == title} )
-        category?.addToTrackers(tracker)
-        saveContext()
-    }
-    
-    // TODO: - добавить метод удаления категории
-    
-    private func saveContext() {
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                print("\(#file): \(#function): Error saving context: \(error.localizedDescription)")
-                context.rollback()
-            }
-        }
     }
     
 }

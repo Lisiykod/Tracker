@@ -15,7 +15,7 @@ final class CreateScheduleViewController: UIViewController {
     
     weak var delegate: SelectedScheduleDelegate?
     
-    private let weekDay: [WeekDay] = [ .monday, .tuersday, .wednesday, .thursday, .friday, .saturday, .sunday ]
+    private let weekDay: [WeekDay] = [ .monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday ]
     private var selectedDays: [WeekDay] = []
     
     private lazy var tableView: UITableView = {

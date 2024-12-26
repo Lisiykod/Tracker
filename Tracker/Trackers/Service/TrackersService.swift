@@ -105,7 +105,7 @@ final class TrackersService {
                 return true
             }
         
-            if  filteredEventTrackers.isEmpty {
+            if filteredEventTrackers.isEmpty {
                 return nil
             }
             

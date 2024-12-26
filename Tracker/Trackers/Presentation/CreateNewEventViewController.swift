@@ -12,7 +12,7 @@ final class CreateNewEventViewController: UIViewController {
     private let trackersService = TrackersService.shared
     private var categoryName: String?
     // событие должно переноситься на следующий день, если не выполнено
-    private var schedule: [WeekDay] = [.monday, .tuersday, .wednesday, .thursday, .friday, .saturday, .sunday]
+    private var schedule: [WeekDay] = [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
     private let isHabit: Bool = false
     private let buttonsName: [String] = ["Категория"]
     private let reuseIdentifier: String = "newEventCell"
@@ -22,11 +22,6 @@ final class CreateNewEventViewController: UIViewController {
     private var selectedColor: UIColor?
     private var emojiIndexPath: IndexPath?
     private var colorIndexPath: IndexPath?
-    private let maximumTextCount: Int = 38
-    private let leftOrRightInset: CGFloat = 18
-    private let topOrBottomInset: CGFloat = 24
-    private let itemsSpacing: CGFloat = 5
-    private let itemsOnRow: CGFloat = 6
     
     private enum EmojisOrColors: Int {
         case emojis = 0
@@ -179,7 +174,7 @@ final class CreateNewEventViewController: UIViewController {
               let category = category,
               !text.isEmpty,
               !category.isEmpty,
-              text.count <= maximumTextCount,
+              text.count <= ConstantsForHabitOrEventVC.maximumTextCount,
               selectedEmoji != nil,
               selectedColor != nil
         else { return }
@@ -253,7 +248,7 @@ extension CreateNewEventViewController: UITextFieldDelegate {
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if let text = textField.text, text.count >= maximumTextCount {
+        if let text = textField.text, text.count >= ConstantsForHabitOrEventVC.maximumTextCount {
             cautionLabel.isHidden = false
         } else {
             cautionLabel.isHidden = true
@@ -313,17 +308,24 @@ extension CreateNewEventViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = (collectionView.bounds.width - (ConstantsForHabitOrEventVC.leftOrRightInset * 2) - (ConstantsForHabitOrEventVC.itemsSpacing * (ConstantsForHabitOrEventVC.itemsOnRow - 1)))/ConstantsForHabitOrEventVC.itemsOnRow
         return CGSize(
-            width: (collectionView.bounds.width - (leftOrRightInset * 2) - (itemsSpacing * (itemsOnRow - 1)))/itemsOnRow,
-            height: 52)
+            width: width,
+            height: 52
+        )
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return itemsSpacing
+        return ConstantsForHabitOrEventVC.itemsSpacing
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: topOrBottomInset, left: leftOrRightInset, bottom: topOrBottomInset, right: leftOrRightInset)
+        return UIEdgeInsets(
+            top: ConstantsForHabitOrEventVC.topOrBottomInset,
+            left: ConstantsForHabitOrEventVC.leftOrRightInset,
+            bottom: ConstantsForHabitOrEventVC.topOrBottomInset,
+            right: ConstantsForHabitOrEventVC.leftOrRightInset
+        )
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

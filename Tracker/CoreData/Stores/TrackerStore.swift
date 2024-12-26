@@ -8,11 +8,13 @@
 import UIKit
 import CoreData
 
-enum TrackerStoreError: Error {
-    case decodingError
-}
 
 final class TrackerStore: NSObject {
+    
+    private enum TrackerStoreError: Error {
+        case decodingError
+    }
+    
     private let context: NSManagedObjectContext
     private let colorMarshalling = UIColorMarshalling()
     
@@ -31,14 +33,18 @@ final class TrackerStore: NSObject {
         return controller
     }()
     
+    // MARK: - Initializers
+    
     convenience override init() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        let context = DataBaseService.shaired.context
         self.init(context: context)
     }
     
     init(context: NSManagedObjectContext) {
         self.context = context
     }
+    
+    // MARK: - Public Methods
     
     func addTracker(_ tracker: Tracker) -> TrackerCoreData {
         let trackerCoreData = TrackerCoreData(context: context)
@@ -48,7 +54,7 @@ final class TrackerStore: NSObject {
         trackerCoreData.isHabit = tracker.isHabit
         trackerCoreData.schedule = tracker.schedule as NSObject
         trackerCoreData.emoji = tracker.emoji
-        saveContext()
+        DataBaseService.shaired.saveContext()
         return trackerCoreData
     }
     
@@ -79,16 +85,6 @@ final class TrackerStore: NSObject {
     
     // TODO: - Добавить функцию удаления трекера
     
-    private func saveContext() {
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                print("\(#file): \(#function): Error saving context: \(error.localizedDescription)")
-                context.rollback()
-            }
-        }
-    }
 }
 
 extension TrackerStore: NSFetchedResultsControllerDelegate {
