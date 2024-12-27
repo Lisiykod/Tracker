@@ -89,10 +89,8 @@ final class TrackerCategoryStore: NSObject {
     // MARK: - Private Methods
     
     private func getCategory(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> TrackerCategory {
-        guard let title = trackerCategoryCoreData.title else {
-            throw TrackerCategoryStoreError.decodingError
-        }
-        guard let trackersFromCoreData = trackerCategoryCoreData.trackers else {
+        guard let title = trackerCategoryCoreData.title,
+              let trackersFromCoreData = trackerCategoryCoreData.trackers else {
             throw TrackerCategoryStoreError.decodingError
         }
         
