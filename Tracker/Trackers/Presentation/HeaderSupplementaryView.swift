@@ -9,8 +9,6 @@ import UIKit
 
 final class HeaderSupplementaryView: UICollectionReusableView {
     
-//    private var isMainHeader: Bool = false
-    
     private lazy var headerLabel: UILabel = {
         let label = UILabel()
         label.textColor = .ypBlack
@@ -34,7 +32,6 @@ final class HeaderSupplementaryView: UICollectionReusableView {
     
     func configureHeader(with text: String) {
         headerLabel.text = text
-//        self.isMainHeader = isMainHeader
     }
     
     // MARK: - Private Methods
@@ -42,7 +39,6 @@ final class HeaderSupplementaryView: UICollectionReusableView {
     private func setupTrackersConstraints() {
         NSLayoutConstraint.activate([
             headerLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 28),
-//            headerLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: isMainHeader ? 12 : 0)
         ])
     }
 }

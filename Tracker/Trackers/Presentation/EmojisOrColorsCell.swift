@@ -18,7 +18,6 @@ final class EmojisOrColorsCell: UICollectionViewCell {
     
     private lazy var emojiBackground: UIView = {
         let view = UIView()
-//        view.backgroundColor = .ypWhite
         view.layer.cornerRadius = 8
         return view
     }()
