@@ -20,7 +20,7 @@ final class TrackerRecordStore {
     // MARK: - Initializers
     
     convenience init() {
-        let context = DataBaseService.shaired.context
+        let context = DataBaseService.shared.context
         self.init(context: context)
     }
     
@@ -34,7 +34,7 @@ final class TrackerRecordStore {
         let trackerRecord = TrackerRecordCoreData(context: context)
         trackerRecord.date = record.date
         trackerRecord.id = record.id
-        DataBaseService.shaired.saveContext()
+        DataBaseService.shared.saveContext()
     }
     
     func fetchRecords() -> Set<TrackerRecord> {
@@ -53,7 +53,7 @@ final class TrackerRecordStore {
         let trackerRecordsFromCoreData = try? context.fetch(request)
         if let recordForDelete = trackerRecordsFromCoreData?.first {
             context.delete(recordForDelete)
-            DataBaseService.shaired.saveContext()
+            DataBaseService.shared.saveContext()
         }
     }
     

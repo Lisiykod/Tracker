@@ -40,7 +40,7 @@ final class TrackerCategoryStore: NSObject {
     // MARK: - Initializers
     
     convenience override init() {
-        let context = DataBaseService.shaired.context
+        let context = DataBaseService.shared.context
         self.init(context: context)
     }
     
@@ -65,7 +65,7 @@ final class TrackerCategoryStore: NSObject {
             trackerCategory.trackers = []
         }
         
-        DataBaseService.shaired.saveContext()
+        DataBaseService.shared.saveContext()
     }
     
     func fetchCategories() throws -> [TrackerCategory] {
@@ -81,7 +81,7 @@ final class TrackerCategoryStore: NSObject {
         let tracker = trackerStore.addTracker(tracker)
         let category = fetchedResultsController.fetchedObjects?.first(where: {$0.title == title} )
         category?.addToTrackers(tracker)
-        DataBaseService.shaired.saveContext()
+        DataBaseService.shared.saveContext()
     }
     
     // TODO: - добавить метод удаления категории

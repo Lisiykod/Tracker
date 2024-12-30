@@ -9,7 +9,7 @@ import CoreData
 
 final class DataBaseService {
     
-    static let shaired = DataBaseService()
+    static let shared = DataBaseService()
     
     // MARK: - Core Data stack
     

@@ -36,7 +36,7 @@ final class TrackerStore: NSObject {
     // MARK: - Initializers
     
     convenience override init() {
-        let context = DataBaseService.shaired.context
+        let context = DataBaseService.shared.context
         self.init(context: context)
     }
     
@@ -54,7 +54,7 @@ final class TrackerStore: NSObject {
         trackerCoreData.isHabit = tracker.isHabit
         trackerCoreData.schedule = tracker.schedule as NSObject
         trackerCoreData.emoji = tracker.emoji
-        DataBaseService.shaired.saveContext()
+        DataBaseService.shared.saveContext()
         return trackerCoreData
     }
     
