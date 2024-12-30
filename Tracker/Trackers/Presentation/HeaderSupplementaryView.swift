@@ -21,7 +21,7 @@ final class HeaderSupplementaryView: UICollectionReusableView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubviews([headerLabel])
-        setupConstraints()
+        setupTrackersConstraints()
     }
     
     required init?(coder: NSCoder) {
@@ -36,10 +36,9 @@ final class HeaderSupplementaryView: UICollectionReusableView {
     
     // MARK: - Private Methods
     
-    private func setupConstraints() {
+    private func setupTrackersConstraints() {
         NSLayoutConstraint.activate([
             headerLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 28),
-            headerLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 12)
         ])
     }
 }

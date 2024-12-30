@@ -14,8 +14,18 @@ final class CreateNewHabitViewController: UIViewController {
     private var schedule: [WeekDay] = []
     private let buttonsName: [String] = ["Категория", "Расписание"]
     private let reuseIdentifier: String = "newTrackerCell"
-    private let isHabit: Bool = false
-    private let maximumTextCount: Int = 38
+    private let isHabit: Bool = true
+    private let emojis = EmojisAndColors.shared.getEmojis()
+    private let colors = EmojisAndColors.shared.getColors()
+    private var selectedEmoji: String?
+    private var selectedColor: UIColor?
+    private var emojiIndexPath: IndexPath?
+    private var colorIndexPath: IndexPath?
+    
+    private enum EmojisOrColors: Int {
+        case emojis = 0
+        case colors = 1
+    }
     
     private lazy var textField: UITextField = {
         let textField = BasicTextField(placeholder: "Введите название трекера")
@@ -80,6 +90,16 @@ final class CreateNewHabitViewController: UIViewController {
         return stackView
     }()
     
+    private lazy var collectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        collectionView.register(EmojisOrColorsCell.self, forCellWithReuseIdentifier: "emojiCell")
+        collectionView.register(HeaderSupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "emojiOrColorHeader")
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.backgroundColor = .ypWhite
+        return collectionView
+    }()
+    
     // MARK: - Initializers
     
     init(isHabit: Bool) {
@@ -101,14 +121,13 @@ final class CreateNewHabitViewController: UIViewController {
         super.viewWillAppear(animated)
         textField.becomeFirstResponder()
         tableView.reloadData()
-        print(schedule.count)
     }
     
     // MARK: - Private Methods
     
     private func setupViews() {
         view.backgroundColor = .ypWhite
-        view.addSubviews([textStackView, tableView, buttonStackView])
+        view.addSubviews([textStackView, tableView, buttonStackView, collectionView])
         navigationItem.title = "Новая привычка"
         cautionLabel.isHidden = true
     }
@@ -128,7 +147,12 @@ final class CreateNewHabitViewController: UIViewController {
             buttonStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             view.trailingAnchor.constraint(equalTo: buttonStackView.trailingAnchor, constant: 20),
             buttonStackView.heightAnchor.constraint(equalToConstant: 60),
-            view.safeAreaLayoutGuide.bottomAnchor.constraint(lessThanOrEqualTo: buttonStackView.bottomAnchor, constant: 24)
+            view.safeAreaLayoutGuide.bottomAnchor.constraint(lessThanOrEqualTo: buttonStackView.bottomAnchor, constant: 24),
+            buttonStackView.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 16),
+            
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            view.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor),
+            collectionView.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 32)
         ])
         
     }
@@ -156,28 +180,32 @@ final class CreateNewHabitViewController: UIViewController {
               !text.isEmpty,
               !category.isEmpty,
               !schedule.isEmpty,
-              text.count <= maximumTextCount
+              text.count <= ConstantsForHabitOrEventVC.maximumTextCount,
+              selectedEmoji != nil,
+              selectedColor != nil
         else { return }
         
-            createButton.backgroundColor = .ypBlack
-            createButton.isEnabled = true
+        createButton.backgroundColor = .ypBlack
+        createButton.isEnabled = true
     }
     
     @objc
     private func createNewHabit() {
-        let emojisAndColors = EmojisAndColors.shared
         guard let title = textField.text,
-              let categoryName = categoryName
+              let categoryName = categoryName,
+              let selectedEmoji = selectedEmoji,
+              let selectedColor = selectedColor
         else { return }
         let newTracker = Tracker(
             id: UUID(),
             title: title,
-            color: emojisAndColors.randomColor(),
-            emoji: emojisAndColors.randomEmoji(),
+            color: selectedColor,
+            emoji: selectedEmoji,
             schedule: schedule,
-            isHabit: !isHabit
+            isHabit: isHabit
         )
-        
+        // TODO: - удалить, когда будет реализовано добавление новой категории
+        trackersService.addCategory(TrackerCategory(title: categoryName, trackers: []))
         trackersService.addTracker(tracker: newTracker, for: categoryName)
         view?.window?.rootViewController?.dismiss(animated: true)
     }
@@ -245,13 +273,117 @@ extension CreateNewHabitViewController: UITextFieldDelegate {
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if let text = textField.text, text.count >= maximumTextCount {
+        if let text = textField.text, text.count >= ConstantsForHabitOrEventVC.maximumTextCount {
             cautionLabel.isHidden = false
         } else {
             cautionLabel.isHidden = true
         }
         return true
     }
+}
+
+extension CreateNewHabitViewController: UICollectionViewDataSource {
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        2
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return emojis.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "emojiCell", for: indexPath) as? EmojisOrColorsCell
+        guard let cell else { return UICollectionViewCell() }
+        
+        let section = EmojisOrColors(rawValue: indexPath.section)
+        switch section {
+        case .emojis:
+            cell.configureEmoji(with: emojis[indexPath.row])
+        case .colors:
+            cell.configureColor(with: colors[indexPath.row])
+        case .none:
+            print("\(#function) not section")
+        }
+
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "emojiOrColorHeader", for: indexPath) as? HeaderSupplementaryView
+        guard let header else { return UICollectionReusableView()}
+        
+        let section = EmojisOrColors(rawValue: indexPath.section)
+        switch section {
+        case .emojis:
+            header.configureHeader(with: "Emoji")
+        case .colors:
+            header.configureHeader(with: "Цвет")
+        case .none:
+            header.configureHeader(with: "")
+        }
+        
+        return header
+    }
+    
+}
+
+extension CreateNewHabitViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: collectionView.frame.width, height: 18)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = (collectionView.bounds.width - (ConstantsForHabitOrEventVC.leftOrRightInset * 2) - (ConstantsForHabitOrEventVC.itemsSpacing * (ConstantsForHabitOrEventVC.itemsOnRow - 1)))/ConstantsForHabitOrEventVC.itemsOnRow
+        return CGSize(
+            width: width,
+            height: 52
+        )
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return ConstantsForHabitOrEventVC.itemsSpacing
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(
+            top: ConstantsForHabitOrEventVC.topOrBottomInset,
+            left: ConstantsForHabitOrEventVC.leftOrRightInset,
+            bottom: ConstantsForHabitOrEventVC.topOrBottomInset,
+            right: ConstantsForHabitOrEventVC.leftOrRightInset
+        )
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as? EmojisOrColorsCell
+        
+        let section = EmojisOrColors(rawValue: indexPath.section)
+        switch section {
+        case .emojis:
+            if selectedEmoji != nil {
+                guard let previewCellIndex = emojiIndexPath else { return }
+                let newCell = collectionView.cellForItem(at: previewCellIndex) as? EmojisOrColorsCell
+                newCell?.deselectedEmoji()
+            }
+            cell?.selectedEmoji()
+            selectedEmoji = emojis[indexPath.row]
+            emojiIndexPath = indexPath
+        case .colors:
+            if selectedColor != nil {
+                guard let previewCellIndex = colorIndexPath else { return }
+                let newCell = collectionView.cellForItem(at: previewCellIndex) as? EmojisOrColorsCell
+                newCell?.deselectedColor()
+            }
+            cell?.selectedColor(with: colors[indexPath.row])
+            selectedColor = colors[indexPath.row]
+            colorIndexPath = indexPath
+        case .none:
+            print("not items for selection")
+        }
+        
+        enableCreateButton()
+    }
+    
 }
 
 extension CreateNewHabitViewController: SelectedCategoryDelegate {

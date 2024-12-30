@@ -63,14 +63,16 @@ final class TrackersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         trackerService.delegate = self
-        updateVisibleCategoryForSelectedDay(currentDate, recordTracker: completedTrackers)
+        updateVisibleCategoryForSelectedDay(currentDate)
         setupViews()
         setupNavigationBar()
         setupConstraints()
     }
     
-    func updateVisibleCategoryForSelectedDay(_ day: Date, recordTracker: Set<TrackerRecord>) {
-        categories = trackerService.getVisibleCategoriesForDate(day, recordTracker: recordTracker)
+    func updateVisibleCategoryForSelectedDay(_ day: Date) {
+        completedTrackers = trackerService.fetchRecords()
+        guard let date = day.ignoringTime else { return }
+        categories = trackerService.getVisibleCategoriesForDate(date, recordTracker: completedTrackers)
         makeViewVisible()
         collection.reloadData()
     }
@@ -92,7 +94,7 @@ final class TrackersViewController: UIViewController {
             datePicker.widthAnchor.constraint(equalToConstant: 100),
             
             collection.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collection.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collection.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
             collection.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collection.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
@@ -115,6 +117,9 @@ final class TrackersViewController: UIViewController {
         if !categories.isEmpty {
             emptyImageTrackersStackView.isHidden = true
             collection.isHidden = false
+        } else {
+            emptyImageTrackersStackView.isHidden = false
+            collection.isHidden = true
         }
     }
     
@@ -128,10 +133,10 @@ final class TrackersViewController: UIViewController {
     
     @objc
     private func datePickerValueChanged(_ sender: UIDatePicker) {
-        let selectedDate = sender.date
+        let selectedDate = sender.date.ignoringTime
+        guard let selectedDate else { return }
         currentDate = selectedDate
-        updateVisibleCategoryForSelectedDay(selectedDate, recordTracker: completedTrackers)
-        
+        updateVisibleCategoryForSelectedDay(selectedDate)
     }
     
     private func checkedTrackerIsCompleted(id: UUID) -> Bool {
@@ -177,7 +182,6 @@ extension TrackersViewController: UICollectionViewDataSource {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader , withReuseIdentifier: "header", for: indexPath) as? HeaderSupplementaryView
         guard let header else { return UICollectionReusableView() }
         header.configureHeader(with: categories[indexPath.section].title)
-//        header.headerLabel.text = categories[indexPath.section].title
         return header
     }
     
@@ -185,15 +189,8 @@ extension TrackersViewController: UICollectionViewDataSource {
 
 extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        let indexPath = IndexPath(row: 0, section: section)
-        let headerView = self.collectionView(collectionView, viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionHeader, at: indexPath) as? HeaderSupplementaryView
-        guard let headerView else { return .zero }
-        return headerView.systemLayoutSizeFitting(
-            CGSize(width: collectionView.frame.width,
-                   height: 18),
-            withHorizontalFittingPriority: .required,
-            verticalFittingPriority: .fittingSizeLevel
-        )
+
+        return CGSize(width: collectionView.frame.width, height: 18)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -205,7 +202,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 24, left: 16, bottom: 0, right: 16)
+        return UIEdgeInsets(top: 12, left: 16, bottom: 16, right: 16)
     }
     
 }
@@ -219,7 +216,8 @@ extension TrackersViewController: CompletedTrackerDelegate {
     func appendTrackerRecord(tracker id: UUID, at indexPath: IndexPath) {
         guard let date = currentDate.ignoringTime else { return }
         let trackerRecord = TrackerRecord(id: id, date: date)
-        completedTrackers.insert(trackerRecord)
+        trackerService.addRecord(trackerRecord)
+        completedTrackers = trackerService.fetchRecords()
         collection.reloadItems(at: [indexPath])
     }
     
@@ -227,7 +225,8 @@ extension TrackersViewController: CompletedTrackerDelegate {
         guard let date = currentDate.ignoringTime else { return }
         let trackerRecord = TrackerRecord(id: id, date: date)
         if completedTrackers.contains(trackerRecord) {
-            completedTrackers.remove(trackerRecord)
+            trackerService.deleteRecord(trackerRecord)
+            completedTrackers = trackerService.fetchRecords()
         }
         collection.reloadItems(at: [indexPath])
     }
@@ -235,7 +234,7 @@ extension TrackersViewController: CompletedTrackerDelegate {
 
 extension TrackersViewController: TrackersServiceDelegate {
     func updateTrackers() {
-        updateVisibleCategoryForSelectedDay(currentDate, recordTracker: completedTrackers)
+        updateVisibleCategoryForSelectedDay(currentDate)
     }
 }
 

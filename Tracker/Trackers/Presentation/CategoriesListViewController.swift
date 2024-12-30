@@ -68,7 +68,7 @@ final class CategoriesListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
-        if trackersService.trackers.isEmpty {
+        if trackersService.categoryExample.isEmpty {
             setupStackViewConsttraints()
         }
         setupConstraints()
@@ -76,9 +76,9 @@ final class CategoriesListViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        stackView.isHidden = trackersService.trackers.isEmpty ? false : true
-        tableView.isHidden = !trackersService.trackers.isEmpty ? false : true
-        if trackersService.trackers.isEmpty {
+        stackView.isHidden = trackersService.categoryExample.isEmpty ? false : true
+        tableView.isHidden = !trackersService.categoryExample.isEmpty ? false : true
+        if trackersService.categoryExample.isEmpty {
             setupStackViewConsttraints()
         }
         setupConstraints()
@@ -91,8 +91,8 @@ final class CategoriesListViewController: UIViewController {
         view.addSubviews([tableView, stackView, addCategoryButton])
         navigationItem.title = "Категория"
         navigationItem.hidesBackButton = true
-        stackView.isHidden = trackersService.trackers.isEmpty ? false : true
-        tableView.isHidden = !trackersService.trackers.isEmpty ? false : true
+        stackView.isHidden = trackersService.categoryExample.isEmpty ? false : true
+        tableView.isHidden = !trackersService.categoryExample.isEmpty ? false : true
         
     }
     
@@ -103,7 +103,7 @@ final class CategoriesListViewController: UIViewController {
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             view.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: 16),
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
-            tableView.heightAnchor.constraint(equalToConstant: CGFloat(75 * trackersService.getCategoriesCount())),
+            tableView.heightAnchor.constraint(equalToConstant: CGFloat(75 * trackersService.getCategoriesExampleCount())),
             
             addCategoryButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             view.trailingAnchor.constraint(equalTo: addCategoryButton.trailingAnchor, constant: 20),
@@ -123,27 +123,24 @@ final class CategoriesListViewController: UIViewController {
     
     @objc
     private func addCategory() {
-        let createCategoryVC = CreateCategoryViewController()
-        createCategoryVC.delegate = self
-        let newNavController = UINavigationController(rootViewController: createCategoryVC)
-        navigationController?.present(newNavController, animated: true)
+        // TODO: - здесь будет код с переходом на экран создания категории
     }
 }
 
 extension CategoriesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return trackersService.getCategoriesCount()
+        return trackersService.getCategoriesExampleCount()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "newCategoryCell", for: indexPath)
         cell.accessoryType = .checkmark
-        cell.textLabel?.text = trackersService.trackers[indexPath.section].title
+        cell.textLabel?.text = trackersService.categoryExample[indexPath.section].title
         cell.backgroundColor = .ypBackgroundDay
         cell.accessoryType = isSelectedCategory ? .checkmark : .none
         cell.selectionStyle = .none
         cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        if trackersService.getCategoriesCount() == 1 {
+        if trackersService.getCategoriesExampleCount() == 1 {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
             tableView.isScrollEnabled = false
         }
@@ -153,15 +150,12 @@ extension CategoriesListViewController: UITableViewDataSource {
 }
 
 extension CategoriesListViewController: UITableViewDelegate {
-//    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//        tableView.reloadRows(at: [indexPath], with: .automatic)
-//    }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let cell = tableView.cellForRow(at: indexPath) {
             if !isSelectedCategory {
                 cell.accessoryType = .checkmark
-                delegate?.categoryDidSelect(name: trackersService.trackers[indexPath.row].title)
+                delegate?.categoryDidSelect(name: trackersService.categoryExample[indexPath.row].title)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                     self?.dismiss(animated: true)
                 }
@@ -171,9 +165,6 @@ extension CategoriesListViewController: UITableViewDelegate {
         }
     }
     
-//    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-//        <#code#>
-//    }
 }
 
 extension CategoriesListViewController: CreateNewCategoryDelegate  {
