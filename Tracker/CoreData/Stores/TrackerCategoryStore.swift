@@ -8,7 +8,6 @@
 import UIKit
 import CoreData
 
-
 final class TrackerCategoryStore: NSObject {
     
     var numberOfSections: Int {
@@ -56,14 +55,12 @@ final class TrackerCategoryStore: NSObject {
             return
         }
         
-        let isContainsSameTitle = categoryFetch.contains { _ in
-            trackerCategory.title != category.title
+        guard !categoryFetch.contains(where: { $0.title == category.title }) else {
+            return
         }
         
-        if !isContainsSameTitle {
-            trackerCategory.title = category.title
-            trackerCategory.trackers = []
-        }
+        trackerCategory.title = category.title
+        trackerCategory.trackers = []
         
         DataBaseService.shared.saveContext()
     }
@@ -114,7 +111,6 @@ final class TrackerCategoryStore: NSObject {
 }
 
 extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
-        //  TODO: - добавить обновление таблицы при добавлении новой категории
+   func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
     }
 }

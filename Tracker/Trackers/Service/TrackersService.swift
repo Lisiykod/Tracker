@@ -59,8 +59,18 @@ final class TrackersService {
     
     // MARK: - Public Methods
     
+    func fetchCategories() -> [TrackerCategory] {
+        let categories = try? trackerCategoryStore.fetchCategories()
+        guard let categories else {
+            print("Do not fetch Categories")
+            return []
+        }
+        return categories
+    }
+    
     func getCategoriesCount() -> Int {
-        trackerCategoryStore.numberOfSections
+        let categories = fetchCategories()
+        return categories.count
     }
     
     func getCategoriesExampleCount() -> Int {
@@ -75,6 +85,7 @@ final class TrackersService {
     func addCategory(_ category: TrackerCategory) {
         trackerCategoryStore.addCategory(category)
     }
+    
     
     func getVisibleCategoriesForDate(_ selectedDate: Date, recordTracker: Set<TrackerRecord>) -> [TrackerCategory] {
         let weekday = Calendar.current.component(.weekday, from: selectedDate)
@@ -131,13 +142,5 @@ final class TrackersService {
     
     private init() { }
     
-    private func fetchCategories() -> [TrackerCategory] {
-        let categories = try? trackerCategoryStore.fetchCategories()
-        guard let categories else {
-            print("Do not fetch Categories")
-            return []
-        }
-        return categories
-    }
-    
 }
+

@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol CreateNewCategoryDelegate: AnyObject {
+    func didCreateCategory(name: String)
+}
+
 final class CreateCategoryViewController: UIViewController {
     
     weak var delegate: CreateNewCategoryDelegate?
@@ -15,7 +19,6 @@ final class CreateCategoryViewController: UIViewController {
     
     private lazy var textField: UITextField = {
         let textField = BasicTextField(placeholder: "Введите название категории")
-//        textField.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
         return textField
     }()
@@ -82,7 +85,7 @@ final class CreateCategoryViewController: UIViewController {
     }
     
     private func enableDoneButton() {
-        guard let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty  else { return }
+        guard let text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return }
         
         doneButton.isEnabled = true
         doneButton.backgroundColor = .ypBlack
