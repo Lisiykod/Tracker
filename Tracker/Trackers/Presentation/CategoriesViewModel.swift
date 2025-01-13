@@ -13,6 +13,10 @@ final class CategoriesViewModel {
     
     var categoriesBinding: Binding<[TrackerCategory]>?
     
+    var categoriesAmount: Int {
+        trackerService.categoriesAmount
+    }
+    
     private let trackerService = TrackersService.shared
     
     private(set) var categories: [TrackerCategory] = [] {
@@ -23,10 +27,6 @@ final class CategoriesViewModel {
     
     func addCategory(_ category: TrackerCategory) {
         trackerService.addCategory(category)
-    }
-    
-    func getCategoriesCount() -> Int {
-        trackerService.getCategoriesCount()
     }
     
     func fetchCategories() {

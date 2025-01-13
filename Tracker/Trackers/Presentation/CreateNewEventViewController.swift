@@ -160,7 +160,8 @@ final class CreateNewEventViewController: UIViewController {
     }
     
     private func showCreateCategoryViewController() {
-        let categoryViewController = CategoriesListViewController()
+        let viewModel = CategoriesViewModel()
+        let categoryViewController = CategoriesListViewController(viewModel: viewModel)
         categoryViewController.delegate = self
         let newNavController = UINavigationController(rootViewController: categoryViewController)
         navigationController?.present(newNavController, animated: true)

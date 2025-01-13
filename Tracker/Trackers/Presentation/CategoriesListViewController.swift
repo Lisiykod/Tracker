@@ -16,7 +16,7 @@ final class CategoriesListViewController: UIViewController {
    
     weak var delegate: SelectedCategoryDelegate?
     private var trackersService = TrackersService.shared
-    private var viewModel: CategoriesViewModel = CategoriesViewModel()
+    private var viewModel: CategoriesViewModel
     private var isSelectedCategory: Bool = false
     
     private lazy var emptyCategoryImage: UIImageView = {
@@ -62,6 +62,17 @@ final class CategoriesListViewController: UIViewController {
         return tableView
     }()
     
+    // MARK: - Initializers
+    
+    init(viewModel: CategoriesViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - Life cycle
     
     override func viewDidLoad() {
@@ -105,14 +116,14 @@ final class CategoriesListViewController: UIViewController {
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             view.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: 16),
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
-            tableView.heightAnchor.constraint(equalToConstant: CGFloat(75 * viewModel.getCategoriesCount())),
+            tableView.heightAnchor.constraint(equalToConstant: CGFloat(75 * viewModel.categoriesAmount)),
            
         ])
         
     }
     
     private func setupNewTableViewHeightConstraints() {
-        let cellCount = viewModel.getCategoriesCount()
+        let cellCount = viewModel.categoriesAmount
  
         let tableViewHeightConstraint = tableView.constraints.first { $0.firstAttribute == .height }
         if let tableViewHeightConstraint {
@@ -134,8 +145,8 @@ final class CategoriesListViewController: UIViewController {
     
     private func checkCategoriesIsEmpty() {
         let categoriesIsEmpty = viewModel.categories.isEmpty
-        stackView.isHidden = categoriesIsEmpty ? false : true
-        tableView.isHidden = !categoriesIsEmpty ? false : true
+        stackView.isHidden = !categoriesIsEmpty
+        tableView.isHidden = categoriesIsEmpty
         
         if categoriesIsEmpty {
             setupStackViewConstraints()
@@ -154,7 +165,7 @@ final class CategoriesListViewController: UIViewController {
 
 extension CategoriesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.getCategoriesCount()
+        return viewModel.categoriesAmount
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

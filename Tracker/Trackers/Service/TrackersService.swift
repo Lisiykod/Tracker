@@ -15,6 +15,11 @@ final class TrackersService {
     static let shared = TrackersService()
     weak var delegate: TrackersServiceDelegate?
     
+    var categoriesAmount: Int {
+        let categories = fetchCategories()
+        return categories.count
+    }
+    
     private let trackerCategoryStore = TrackerCategoryStore()
     private var trackerRecordStore = TrackerRecordStore()
     
@@ -66,11 +71,6 @@ final class TrackersService {
             return []
         }
         return categories
-    }
-    
-    func getCategoriesCount() -> Int {
-        let categories = fetchCategories()
-        return categories.count
     }
     
     func getCategoriesExampleCount() -> Int {
