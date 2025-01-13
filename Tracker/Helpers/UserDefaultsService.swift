@@ -10,27 +10,30 @@ import Foundation
 final class UserDefaultsService {
     static let shared = UserDefaultsService()
     
-    private let launchKey = "isFirstLaunch"
     private let storage = UserDefaults.standard
     
-    private var isNotFirstLaunch: Bool {
+    private enum Keys: String {
+        case launchKey = "isFirstLaunch"
+    }
+    
+    private var isFirstLaunch: Bool {
         get {
-            storage.bool(forKey: launchKey)
+            storage.bool(forKey: Keys.launchKey.rawValue)
         }
         
         set {
-            storage.set(newValue, forKey: launchKey)
+            storage.set(newValue, forKey: Keys.launchKey.rawValue)
         }
     }
     
-    func getIsNotFirstLaunch() -> Bool {
-        return isNotFirstLaunch
+    private init() {}
+    
+    func getIsFirstLaunch() -> Bool {
+        return isFirstLaunch
     }
     
     func setIsFirstLaunch(_ value: Bool) {
-        isNotFirstLaunch = value
+        isFirstLaunch = value
     }
-    
-    private init() {}
     
 }

@@ -5,7 +5,6 @@
 //  Created by Olga Trofimova on 17.12.2024.
 //
 
-import UIKit
 import CoreData
 
 final class TrackerCategoryStore: NSObject {

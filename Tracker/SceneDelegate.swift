@@ -18,7 +18,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         let onboardingPageViewController = OnboardingPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
-        window?.rootViewController = launchService.getIsNotFirstLaunch() ? TabBarViewController() : onboardingPageViewController
+        window?.rootViewController = !launchService.getIsFirstLaunch() ? onboardingPageViewController : TabBarViewController()
         window?.makeKeyAndVisible()
     }
 
