@@ -7,9 +7,6 @@
 
 import UIKit
 
-protocol CreateNewCategoryDelegate: AnyObject {
-    func didCreateCategory(name: String)
-}
 
 protocol SelectedCategoryDelegate: AnyObject {
     func categoryDidSelect(name: String)
@@ -19,6 +16,7 @@ final class CategoriesListViewController: UIViewController {
    
     weak var delegate: SelectedCategoryDelegate?
     private var trackersService = TrackersService.shared
+    private var viewModel: CategoriesViewModel
     private var isSelectedCategory: Bool = false
     
     private lazy var emptyCategoryImage: UIImageView = {
@@ -64,86 +62,120 @@ final class CategoriesListViewController: UIViewController {
         return tableView
     }()
     
+    // MARK: - Initializers
+    
+    init(viewModel: CategoriesViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - Life cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
-        if trackersService.categoryExample.isEmpty {
-            setupStackViewConsttraints()
+        viewModel.categoriesBinding = { [weak self] categories in
+            guard let self else { return }
+            self.tableView.reloadData()
         }
-        setupConstraints()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        stackView.isHidden = trackersService.categoryExample.isEmpty ? false : true
-        tableView.isHidden = !trackersService.categoryExample.isEmpty ? false : true
-        if trackersService.categoryExample.isEmpty {
-            setupStackViewConsttraints()
-        }
-        setupConstraints()
-        tableView.reloadData()
+        viewModel.fetchCategories()
+        checkCategoriesIsEmpty()
     }
     
     // MARK: - Private Methods
     private func setupViews() {
         view.backgroundColor = .ypWhite
-        view.addSubviews([tableView, stackView, addCategoryButton])
+        view.addSubviews([tableView, addCategoryButton, stackView])
         navigationItem.title = "Категория"
         navigationItem.hidesBackButton = true
-        stackView.isHidden = trackersService.categoryExample.isEmpty ? false : true
-        tableView.isHidden = !trackersService.categoryExample.isEmpty ? false : true
-        
+        setupTableViewConstraints()
+        setupButtonConstraints()
     }
     
-    private func setupConstraints() {
-        addCategoryButton.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
+    private func setupButtonConstraints() {
+
         NSLayoutConstraint.activate([
-            
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            view.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: 16),
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
-            tableView.heightAnchor.constraint(equalToConstant: CGFloat(75 * trackersService.getCategoriesExampleCount())),
             
             addCategoryButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             view.trailingAnchor.constraint(equalTo: addCategoryButton.trailingAnchor, constant: 20),
             view.safeAreaLayoutGuide.bottomAnchor.constraint(equalTo: addCategoryButton.bottomAnchor, constant: 16),
             addCategoryButton.heightAnchor.constraint(equalToConstant: 60),
             addCategoryButton.topAnchor.constraint(greaterThanOrEqualTo: tableView.bottomAnchor, constant: 24)
-            
         ])
+        
     }
     
-    private func setupStackViewConsttraints() {
+    private func setupTableViewConstraints() {
+       
+        NSLayoutConstraint.activate([
+            
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            view.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: 16),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            tableView.heightAnchor.constraint(equalToConstant: CGFloat(75 * viewModel.categoriesAmount)),
+           
+        ])
+        
+    }
+    
+    private func setupNewTableViewHeightConstraints() {
+        let cellCount = viewModel.categoriesAmount
+ 
+        let tableViewHeightConstraint = tableView.constraints.first { $0.firstAttribute == .height }
+        if let tableViewHeightConstraint {
+            tableViewHeightConstraint.priority = .defaultLow
+            tableViewHeightConstraint.constant = CGFloat(75 * cellCount)
+            tableViewHeightConstraint.isActive = true
+        }
+
+        view.layoutIfNeeded()
+
+    }
+    
+    private func setupStackViewConstraints() {
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
         ])
     }
     
+    private func checkCategoriesIsEmpty() {
+        let categoriesIsEmpty = viewModel.categories.isEmpty
+        stackView.isHidden = !categoriesIsEmpty
+        tableView.isHidden = categoriesIsEmpty
+        
+        if categoriesIsEmpty {
+            setupStackViewConstraints()
+        }
+        
+    }
+    
     @objc
     private func addCategory() {
-        // TODO: - здесь будет код с переходом на экран создания категории
+        let createCategoryVC = CreateCategoryViewController()
+        createCategoryVC.delegate = self
+        let newNavController = UINavigationController(rootViewController: createCategoryVC)
+        navigationController?.present(newNavController, animated: true)
     }
 }
 
 extension CategoriesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return trackersService.getCategoriesExampleCount()
+        return viewModel.categoriesAmount
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "newCategoryCell", for: indexPath)
         cell.accessoryType = .checkmark
-        cell.textLabel?.text = trackersService.categoryExample[indexPath.section].title
+        cell.textLabel?.text = viewModel.getCategoryTitle(at: indexPath.row)
         cell.backgroundColor = .ypBackgroundDay
         cell.accessoryType = isSelectedCategory ? .checkmark : .none
         cell.selectionStyle = .none
         cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        if trackersService.getCategoriesExampleCount() == 1 {
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
-            tableView.isScrollEnabled = false
-        }
         return cell
     }
     
@@ -155,7 +187,8 @@ extension CategoriesListViewController: UITableViewDelegate {
         if let cell = tableView.cellForRow(at: indexPath) {
             if !isSelectedCategory {
                 cell.accessoryType = .checkmark
-                delegate?.categoryDidSelect(name: trackersService.categoryExample[indexPath.row].title)
+                guard let title = viewModel.getCategoryTitle(at: indexPath.row) else { return }
+                delegate?.categoryDidSelect(name: title)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                     self?.dismiss(animated: true)
                 }
@@ -169,6 +202,9 @@ extension CategoriesListViewController: UITableViewDelegate {
 
 extension CategoriesListViewController: CreateNewCategoryDelegate  {
     func didCreateCategory(name: String) {
-    
+        viewModel.addCategory(TrackerCategory(title: name, trackers: []))
+        viewModel.fetchCategories()
+        checkCategoriesIsEmpty()
+        setupNewTableViewHeightConstraints()
     }
 }

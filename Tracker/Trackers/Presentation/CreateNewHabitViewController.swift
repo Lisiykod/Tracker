@@ -158,7 +158,8 @@ final class CreateNewHabitViewController: UIViewController {
     }
     
     private func showCreateCategoryViewController() {
-        let categoryViewController = CategoriesListViewController()
+        let viewModel = CategoriesViewModel()
+        let categoryViewController = CategoriesListViewController(viewModel: viewModel)
         categoryViewController.delegate = self
         let newNavController = UINavigationController(rootViewController: categoryViewController)
         navigationController?.present(newNavController, animated: true)
@@ -204,8 +205,6 @@ final class CreateNewHabitViewController: UIViewController {
             schedule: schedule,
             isHabit: isHabit
         )
-        // TODO: - удалить, когда будет реализовано добавление новой категории
-        trackersService.addCategory(TrackerCategory(title: categoryName, trackers: []))
         trackersService.addTracker(tracker: newTracker, for: categoryName)
         view?.window?.rootViewController?.dismiss(animated: true)
     }

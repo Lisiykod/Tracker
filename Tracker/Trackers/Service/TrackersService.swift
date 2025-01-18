@@ -15,6 +15,11 @@ final class TrackersService {
     static let shared = TrackersService()
     weak var delegate: TrackersServiceDelegate?
     
+    var categoriesAmount: Int {
+        let categories = fetchCategories()
+        return categories.count
+    }
+    
     private let trackerCategoryStore = TrackerCategoryStore()
     private var trackerRecordStore = TrackerRecordStore()
     
@@ -59,8 +64,13 @@ final class TrackersService {
     
     // MARK: - Public Methods
     
-    func getCategoriesCount() -> Int {
-        trackerCategoryStore.numberOfSections
+    func fetchCategories() -> [TrackerCategory] {
+        let categories = try? trackerCategoryStore.fetchCategories()
+        guard let categories else {
+            print("Do not fetch Categories")
+            return []
+        }
+        return categories
     }
     
     func getCategoriesExampleCount() -> Int {
@@ -75,6 +85,7 @@ final class TrackersService {
     func addCategory(_ category: TrackerCategory) {
         trackerCategoryStore.addCategory(category)
     }
+    
     
     func getVisibleCategoriesForDate(_ selectedDate: Date, recordTracker: Set<TrackerRecord>) -> [TrackerCategory] {
         let weekday = Calendar.current.component(.weekday, from: selectedDate)
@@ -131,13 +142,5 @@ final class TrackersService {
     
     private init() { }
     
-    private func fetchCategories() -> [TrackerCategory] {
-        let categories = try? trackerCategoryStore.fetchCategories()
-        guard let categories else {
-            print("Do not fetch Categories")
-            return []
-        }
-        return categories
-    }
-    
 }
+

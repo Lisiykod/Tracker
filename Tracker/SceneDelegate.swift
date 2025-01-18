@@ -11,12 +11,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
+    let launchService = UserDefaultsService.shared
+    var goToTrackersComletionHandler: (() -> Void)?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = TabBarViewController()
+        let onboardingPageViewController = OnboardingPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
+        let tabBarViewController = TabBarViewController()
+        window?.rootViewController = !launchService.getIsFirstLaunch() ? onboardingPageViewController : tabBarViewController
+        goToTrackersComletionHandler = { [weak self] in
+            guard let self else { return }
+            window?.rootViewController = tabBarViewController
+            launchService.setIsFirstLaunch(true)
+        }
         window?.makeKeyAndVisible()
     }
 
