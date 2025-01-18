@@ -9,6 +9,8 @@ import UIKit
 
 final class OnboardingViewController: UIViewController {
     
+    var completionHandler: (() -> Void)?
+    
     private let launchService = UserDefaultsService.shared
     
     private lazy var button: UIButton = {
@@ -80,12 +82,12 @@ final class OnboardingViewController: UIViewController {
     
     @objc
     private func goToTrackers() {
-        guard let window = UIApplication.shared.windows.first else {
+        
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
             print("Invalid Configuration")
             return
         }
-        let tabBar = TabBarViewController()
-        window.rootViewController = tabBar
-        launchService.setIsFirstLaunch(true)
+        
+        sceneDelegate.goToTrackersComletionHandler?()
     }
 }
