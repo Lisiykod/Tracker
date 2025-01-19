@@ -95,9 +95,8 @@ final class TrackerCollectionCell: UICollectionViewCell {
         emojiLabel.text = tracker.emoji
         self.isCompleted = isCompleted
         self.daysCount = daysCount
-        let dayWord = declension(of: daysCount)
-        dateLabel.text = "\(self.daysCount) \(dayWord)"
-        
+        dateLabel.text = String.localizedStringWithFormat(NSLocalizedString("numberOfDays", comment: "Text for number of days"), daysCount)
+
         let buttonImage = isCompleted ? UIImage(named: "done") : UIImage(systemName: "plus")
         plusButton.setImage(buttonImage, for: .normal)
         plusButton.alpha = isCompleted ?  0.3 : 1
@@ -149,24 +148,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
             dateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
             
         ])
-    }
-    
-    private func declension(of day: Int) -> String {
-        let reminderOf10 = day % 10
-        let reminderOf100 = day % 100
-        
-        if reminderOf100 >= 11 && reminderOf100 <= 14 {
-            return "дней"
-        }
-        
-        switch reminderOf10 {
-        case 1:
-            return "день"
-        case 2...4:
-            return "дня"
-        default:
-            return "дней"
-        }
     }
     
     @objc
