@@ -14,11 +14,14 @@ final class TrackersViewController: UIViewController {
     private var completedTrackers: Set<TrackerRecord> = []
     private var currentDate: Date = Date()
     
+    private let emptyTrackersLabelTitle = NSLocalizedString("emptyTrackersLabel", comment: "Text displayed when tracker is empty")
+    private let emptySearchOrFilterLabelTitle = NSLocalizedString("emptySearchOrFilterLabel", comment: "Text displayed when search result or filter result is empty")
+    
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
-        datePicker.locale = Locale(identifier: "ru_RU")
+        datePicker.locale = .current
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
         return datePicker
     }()
@@ -33,12 +36,19 @@ final class TrackersViewController: UIViewController {
     private lazy var emptyTrackersLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.text = "Что будем отслеживать?"
         label.textColor = .ypBlack
         return label
     }()
     
     private lazy var emptyImageTrackersStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [emptyTrackersImage, emptyTrackersLabel])
+        stackView.axis = .vertical
+        stackView.alignment = .center
+        stackView.spacing = 8
+        return stackView
+    }()
+    
+    private lazy var emptySearchOrFilterStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [emptyTrackersImage, emptyTrackersLabel])
         stackView.axis = .vertical
         stackView.alignment = .center
@@ -73,7 +83,7 @@ final class TrackersViewController: UIViewController {
         completedTrackers = trackerService.fetchRecords()
         guard let date = day.ignoringTime else { return }
         categories = trackerService.getVisibleCategoriesForDate(date, recordTracker: completedTrackers)
-        makeViewVisible()
+        makeViewVisible(isDateFilter: true)
         collection.reloadData()
     }
     
@@ -82,7 +92,7 @@ final class TrackersViewController: UIViewController {
     private func setupViews() {
         view.backgroundColor = .ypWhite
         view.addSubviews([datePicker, emptyImageTrackersStackView, collection])
-        makeViewVisible()
+        makeViewVisible(isDateFilter: true)
     }
     
     private func setupConstraints() {
@@ -113,12 +123,15 @@ final class TrackersViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
     }
     
-    private func makeViewVisible() {
-        if !categories.isEmpty {
+    private func makeViewVisible(isDateFilter: Bool) {
+        // TODO: - добавить проверку на пустой поиск и фильтр + настройку текста
+        if isDateFilter && !categories.isEmpty {
             emptyImageTrackersStackView.isHidden = true
             collection.isHidden = false
         } else {
             emptyImageTrackersStackView.isHidden = false
+            emptyTrackersLabel.text = isDateFilter ? emptyTrackersLabelTitle : emptySearchOrFilterLabelTitle
+            emptyTrackersImage.image = isDateFilter ? UIImage(named: "empty_trackers_image") : UIImage(named: "empty_search_image")
             collection.isHidden = true
         }
     }

@@ -1,0 +1,34 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Olga Trofimova on 18.01.2025.
+  
+*/
+
+// Onboarding
+
+"buttonTitle" = "Now that's technology!";
+"firstOnboardingTitle" = "Track only what you want";
+"secondOnboardingTitle" = "Even if it's not liters of water and yoga";
+
+// Main Tracker
+
+"trackers.navigationItem.title" = "Trackers";
+"statistics.navigationItem.title" = "Statistics";
+
+"emptyTrackersLabel" = "What are we going to track?";
+"emptySearchOrFilterLabel" = "Nothing found";
+
+// Create New Habbit
+
+// Create New Habbit
+
+// CategoriesList
+
+// CreateCategory
+
+// Schedule
+
+// Statistics
+

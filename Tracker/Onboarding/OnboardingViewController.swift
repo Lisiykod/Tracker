@@ -15,7 +15,8 @@ final class OnboardingViewController: UIViewController {
     
     private lazy var button: UIButton = {
         let button = UIButton()
-        button.baseConfiguration(with: "Вот это технологии!")
+        let buttonTitle = NSLocalizedString("buttonTitle", comment: "Text displayed on onboarding page button")
+        button.baseConfiguration(with: buttonTitle)
         button.addTarget(self, action: #selector(goToTrackers), for: .touchUpInside)
         return button
     }()
