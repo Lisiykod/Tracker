@@ -80,7 +80,18 @@ final class TrackerCategoryStore: NSObject {
         DataBaseService.shared.saveContext()
     }
     
-    // TODO: - добавить метод удаления категории
+//    func deleteTrackerFromCategory(_ tracker: Tracker, category title: String)  {
+//        trackerStore.deleteTracker(tracker: tracker)
+//        guard let category = fetchedResultsController.fetchedObjects?.first(where: {$0.title == title} ) else {
+//            return
+//        }
+//       
+//    }
+    
+    func deleteTrackerFromCategory(_ tracker: Tracker)  {
+        trackerStore.deleteTracker(tracker: tracker)
+        DataBaseService.shared.saveContext()
+    }
     
     // MARK: - Private Methods
     

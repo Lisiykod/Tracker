@@ -82,7 +82,12 @@ final class TrackerStore: NSObject {
         )
     }
     
-    // TODO: - Добавить функцию удаления трекера
+    func deleteTracker(tracker: Tracker) {
+        guard let fetchTracker = fetchedResultsController.fetchedObjects?.first(where: {$0.id == tracker.id}) else {
+            return
+        }
+        context.delete(fetchTracker)
+    }
     
 }
 

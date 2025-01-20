@@ -86,6 +86,10 @@ final class TrackersService {
         trackerCategoryStore.addCategory(category)
     }
     
+    func deleteTracker(_ tracker: Tracker) {
+        trackerCategoryStore.deleteTrackerFromCategory(tracker)
+    }
+    
     
     func getVisibleCategoriesForDate(_ selectedDate: Date, recordTracker: Set<TrackerRecord>) -> [TrackerCategory] {
         let weekday = Calendar.current.component(.weekday, from: selectedDate)
@@ -138,6 +142,9 @@ final class TrackersService {
         trackerRecordStore.fetchRecords()
     }
     
+    func deleteAllRecords(_ tracker: Tracker) {
+        trackerRecordStore.deleteAllRecords(tracker)
+    }
     // MARK: - Private Methods
     
     private init() { }

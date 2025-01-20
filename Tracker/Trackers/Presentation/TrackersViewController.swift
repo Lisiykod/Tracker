@@ -16,6 +16,13 @@ final class TrackersViewController: UIViewController {
     
     private let emptyTrackersLabelTitle = NSLocalizedString("emptyTrackersLabel", comment: "Text displayed when tracker is empty")
     private let emptySearchOrFilterLabelTitle = NSLocalizedString("emptySearchOrFilterLabel", comment: "Text displayed when search result or filter result is empty")
+    private let pinTitle = NSLocalizedString("pinTitle", comment: "Text displayed when context menu appear")
+    private let unpinTitile = NSLocalizedString("unpinTitile", comment: "Text displayed when context menu appear")
+    private let deleteTitile = NSLocalizedString("deleteTitile", comment: "Text displayed when context menu appear")
+    private let editTitile = NSLocalizedString("editTitile", comment: "Text displayed when context menu appear")
+    private let deleteActionSheetTitle = NSLocalizedString("deleteActionSheetTitle", comment: "Title of delete action sheet")
+    private let deleteActionTitle = NSLocalizedString("deleteActionTitle", comment: "Title of delete action sheet")
+    private let cancelActionTitle = NSLocalizedString("cancelActionTitle", comment: "Title of cancel action sheet")
     
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
@@ -216,6 +223,62 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 12, left: 16, bottom: 16, right: 16)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPaths: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            guard let self else { return UIMenu() }
+            let pinAction = UIAction(title: pinTitle) {_ in
+                
+            }
+            
+            let unpinAction = UIAction(title: unpinTitile) { _ in
+                
+            }
+            
+            let deleteAction = UIAction(title: deleteTitile, attributes: .destructive) { _ in
+                self.deleteTracker(at: indexPaths)
+            }
+            
+            let editAction = UIAction(title: editTitile) { _ in
+                
+            }
+            
+//            let childrens = [pinAction, unpinAction, deleteAction, editAction]
+            
+            return UIMenu(options: UIMenu.Options.displayInline, children: [pinAction, unpinAction, deleteAction, editAction])
+        }
+        
+        return configuration
+    }
+    
+    private func pinTracker(at indexPath: IndexPath) {
+        
+    }
+    
+    private func unpinTracker(at indexPath: IndexPath) {
+        
+    }
+    
+    private func deleteTracker(at indexPath: IndexPath) {
+        let actionSheet = UIAlertController(title: deleteActionSheetTitle, message: nil, preferredStyle: .actionSheet)
+        let deleteAction = UIAlertAction(title: deleteActionTitle, style: .destructive) { [weak self] _ in
+            guard let self else { return }
+            trackerService.deleteTracker(categories[indexPath.section].trackers[indexPath.row])
+            trackerService.deleteAllRecords(categories[indexPath.section].trackers[indexPath.row])
+            categories = trackerService.fetchCategories()
+            collection.reloadData()
+        }
+        
+        let cancelAction = UIAlertAction(title: cancelActionTitle, style: .cancel, handler: nil)
+        actionSheet.addAction(deleteAction)
+        actionSheet.addAction(cancelAction)
+        present(actionSheet, animated: true)
+        collection.reloadData()
+    }
+    
+    private func editTracker(at indexPath: IndexPath) {
+        
     }
     
 }
