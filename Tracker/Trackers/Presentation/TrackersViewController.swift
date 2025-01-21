@@ -229,10 +229,14 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
             guard let self else { return UIMenu() }
             let pinAction = UIAction(title: pinTitle) {_ in
-                
+                self.pinTracker(at: indexPaths)
             }
             
             let unpinAction = UIAction(title: unpinTitile) { _ in
+                self.unpinTracker(at: indexPaths)
+            }
+            
+            let editAction = UIAction(title: editTitile) { _ in
                 
             }
             
@@ -240,24 +244,30 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
                 self.deleteTracker(at: indexPaths)
             }
             
-            let editAction = UIAction(title: editTitile) { _ in
-                
+            if categories[indexPaths.section].title == "Закрепленные" {
+                return UIMenu(options: UIMenu.Options.displayInline, children: [unpinAction, editAction, deleteAction])
+            } else {
+                return UIMenu(options: UIMenu.Options.displayInline, children: [pinAction, editAction, deleteAction])
             }
-            
-//            let childrens = [pinAction, unpinAction, deleteAction, editAction]
-            
-            return UIMenu(options: UIMenu.Options.displayInline, children: [pinAction, unpinAction, deleteAction, editAction])
         }
         
         return configuration
     }
     
     private func pinTracker(at indexPath: IndexPath) {
-        
+        var tracker = categories[indexPath.section].trackers[indexPath.row]
+        tracker.isPinned = true
+        trackerService.updatePinTrackerStatus(tracker)
+        categories = trackerService.fetchCategories()
+        collection.reloadData()
     }
     
     private func unpinTracker(at indexPath: IndexPath) {
-        
+//        var tracker = categories[indexPath.section].trackers[indexPath.row]
+//        tracker.isPinned = false
+//        trackerService.updatePinTrackerStatus(tracker)
+//        categories = trackerService.fetchCategories()
+//        collection.reloadData()
     }
     
     private func deleteTracker(at indexPath: IndexPath) {

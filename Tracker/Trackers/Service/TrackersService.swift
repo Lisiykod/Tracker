@@ -22,6 +22,7 @@ final class TrackersService {
     
     private let trackerCategoryStore = TrackerCategoryStore()
     private var trackerRecordStore = TrackerRecordStore()
+    private let trackerStore = TrackerStore()
     
     private(set) var categoryExample: [TrackerCategory] = [TrackerCategory(
         title: "Важное",
@@ -90,12 +91,18 @@ final class TrackersService {
         trackerCategoryStore.deleteTrackerFromCategory(tracker)
     }
     
+    func updatePinTrackerStatus(_ tracker: Tracker) {
+        trackerStore.updatePinTrackerStatus(tracker: tracker)
+    }
+    
     
     func getVisibleCategoriesForDate(_ selectedDate: Date, recordTracker: Set<TrackerRecord>) -> [TrackerCategory] {
         let weekday = Calendar.current.component(.weekday, from: selectedDate)
         let filterWeekday = weekday == 1 ? 7 : weekday - 1
         let fecthTrackers = fetchCategories()
         var allVisibleCategories = [TrackerCategory]()
+        var trackers: [Tracker] = []
+        var pinnedTrackers = [TrackerCategory(title: "Закрепленные", trackers: [])]
         
         allVisibleCategories = fecthTrackers.compactMap { category in
             let allFilteredTrackers = category.trackers.filter { tracker in
@@ -120,15 +127,30 @@ final class TrackersService {
                 return true
             }
         
-            if filteredEventTrackers.isEmpty {
+            let filteredWithPinningTracker = filteredEventTrackers.filter { tracker in
+                if tracker.isPinned {
+                    trackers.append(tracker)
+                    pinnedTrackers = [TrackerCategory(title: "Закрепленные", trackers: trackers)]
+
+                    return false
+                }
+                return true
+            }
+            
+            if filteredWithPinningTracker.isEmpty {
                 return nil
             }
             
-            return TrackerCategory(title: category.title, trackers: filteredEventTrackers)
+            return TrackerCategory(title: category.title, trackers: filteredWithPinningTracker)
+        }
+        
+        if !pinnedTrackers.isEmpty {
+            allVisibleCategories.insert(contentsOf: pinnedTrackers, at: 0)
         }
         
         return allVisibleCategories
     }
+    
     
     func addRecord(_ record: TrackerRecord) {
         trackerRecordStore.addRecord(record)

@@ -53,6 +53,7 @@ final class TrackerStore: NSObject {
         trackerCoreData.isHabit = tracker.isHabit
         trackerCoreData.schedule = tracker.schedule as NSObject
         trackerCoreData.emoji = tracker.emoji
+        trackerCoreData.isPinned = tracker.isPinned
         DataBaseService.shared.saveContext()
         return trackerCoreData
     }
@@ -78,9 +79,20 @@ final class TrackerStore: NSObject {
             color: colorMarshalling.color(from: color),
             emoji: emoji,
             schedule: schedule,
-            isHabit: trackerCoreData.isHabit
+            isHabit: trackerCoreData.isHabit,
+            isPinned: trackerCoreData.isPinned
         )
     }
+    
+    func updatePinTrackerStatus(tracker: Tracker) {
+        let fetchedTrackers = fetchedResultsController.fetchedObjects
+        guard let fetchedTracker = fetchedTrackers?.first(where: { $0.id == tracker.id }) else {
+            return
+        }
+        fetchedTracker.isPinned = tracker.isPinned
+        DataBaseService.shared.saveContext()
+    }
+    
     
     func deleteTracker(tracker: Tracker) {
         guard let fetchTracker = fetchedResultsController.fetchedObjects?.first(where: {$0.id == tracker.id}) else {

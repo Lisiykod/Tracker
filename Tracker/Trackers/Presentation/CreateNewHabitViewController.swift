@@ -203,7 +203,8 @@ final class CreateNewHabitViewController: UIViewController {
             color: selectedColor,
             emoji: selectedEmoji,
             schedule: schedule,
-            isHabit: isHabit
+            isHabit: isHabit,
+            isPinned: false
         )
         trackersService.addTracker(tracker: newTracker, for: categoryName)
         view?.window?.rootViewController?.dismiss(animated: true)
