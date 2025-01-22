@@ -258,16 +258,16 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         var tracker = categories[indexPath.section].trackers[indexPath.row]
         tracker.isPinned = true
         trackerService.updatePinTrackerStatus(tracker)
-        categories = trackerService.fetchCategories()
+        updateVisibleCategoryForSelectedDay(currentDate)
         collection.reloadData()
     }
     
     private func unpinTracker(at indexPath: IndexPath) {
-//        var tracker = categories[indexPath.section].trackers[indexPath.row]
-//        tracker.isPinned = false
-//        trackerService.updatePinTrackerStatus(tracker)
-//        categories = trackerService.fetchCategories()
-//        collection.reloadData()
+        var tracker = categories[indexPath.section].trackers[indexPath.row]
+        tracker.isPinned = false
+        trackerService.updatePinTrackerStatus(tracker)
+        updateVisibleCategoryForSelectedDay(currentDate)
+        collection.reloadData()
     }
     
     private func deleteTracker(at indexPath: IndexPath) {
