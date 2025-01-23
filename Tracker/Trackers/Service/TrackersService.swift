@@ -152,6 +152,20 @@ final class TrackersService {
         return allVisibleCategories
     }
     
+    func getSearchedTrackers(_ searchText: String, filtered categories: [TrackerCategory]) -> [TrackerCategory] {
+        let filteredCategories = categories.compactMap { category -> TrackerCategory? in
+            let allFilteredTrackers = category.trackers.filter { $0.title.lowercased().contains(searchText.lowercased()) }
+            
+            
+            if allFilteredTrackers.isEmpty {
+                return nil
+            }
+            
+            return TrackerCategory(title: category.title, trackers: allFilteredTrackers)
+        }
+        
+        return filteredCategories
+    }
     
     func addRecord(_ record: TrackerRecord) {
         trackerRecordStore.addRecord(record)

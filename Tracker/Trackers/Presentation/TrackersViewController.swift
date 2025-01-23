@@ -11,6 +11,7 @@ final class TrackersViewController: UIViewController {
     
     private let trackerService = TrackersService.shared
     private var categories: [TrackerCategory] = []
+    private var filteredCategories: [TrackerCategory] = []
     private var completedTrackers: Set<TrackerRecord> = []
     private var currentDate: Date = Date()
     
@@ -23,6 +24,8 @@ final class TrackersViewController: UIViewController {
     private let deleteActionSheetTitle = NSLocalizedString("deleteActionSheetTitle", comment: "Title of delete action sheet")
     private let deleteActionTitle = NSLocalizedString("deleteActionTitle", comment: "Title of delete action sheet")
     private let cancelActionTitle = NSLocalizedString("cancelActionTitle", comment: "Title of cancel action sheet")
+    private let searchPlaceholderTitle = NSLocalizedString("searchPlaceholderTitle", comment:  "Title of search placeholder")
+    private let filterButton = NSLocalizedString("filterButton", comment: "Title of filter button")
     
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
@@ -81,6 +84,7 @@ final class TrackersViewController: UIViewController {
         super.viewDidLoad()
         trackerService.delegate = self
         updateVisibleCategoryForSelectedDay(currentDate)
+        filteredCategories = categories
         setupViews()
         setupNavigationBar()
         setupConstraints()
@@ -123,15 +127,16 @@ final class TrackersViewController: UIViewController {
         navigationItem.leftBarButtonItem?.tintColor = .ypBlack
         
         let searchController = UISearchController(searchResultsController: nil)
-        searchController.searchBar.placeholder = "Поиск"
-        searchController.delegate = self
+        searchController.searchBar.placeholder = searchPlaceholderTitle
+        searchController.obscuresBackgroundDuringPresentation = false
+//        searchController.delegate = self
+        searchController.searchResultsUpdater = self
         navigationItem.searchController = searchController
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
     }
     
     private func makeViewVisible(isDateFilter: Bool) {
-        // TODO: - добавить проверку на пустой поиск и фильтр + настройку текста
         if isDateFilter && !categories.isEmpty {
             emptyImageTrackersStackView.isHidden = true
             collection.isHidden = false
@@ -276,7 +281,8 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
             guard let self else { return }
             trackerService.deleteTracker(categories[indexPath.section].trackers[indexPath.row])
             trackerService.deleteAllRecords(categories[indexPath.section].trackers[indexPath.row])
-            categories = trackerService.fetchCategories()
+//            categories = trackerService.fetchCategories()
+            updateVisibleCategoryForSelectedDay(currentDate)
             collection.reloadData()
         }
         
@@ -317,10 +323,26 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     
 }
 
-extension TrackersViewController: UISearchControllerDelegate {
+// MARK: - UISearchResultsUpdating
+
+extension TrackersViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        var isDateFilter = false
+        
+        if let searchText = searchController.searchBar.text, !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            let searchResult = trackerService.getSearchedTrackers(searchText, filtered: categories)
+            categories = searchResult
+        } else {
+            updateVisibleCategoryForSelectedDay(currentDate)
+            isDateFilter = true
+        }
+        makeViewVisible(isDateFilter: isDateFilter)
+        collection.reloadData()
+    }
     
 }
 
+// MARK: - CompletedTrackerDelegate
 extension TrackersViewController: CompletedTrackerDelegate {
     
     func appendTrackerRecord(tracker id: UUID, at indexPath: IndexPath) {
@@ -342,6 +364,7 @@ extension TrackersViewController: CompletedTrackerDelegate {
     }
 }
 
+// MARK: - TrackersServiceDelegate
 extension TrackersViewController: TrackersServiceDelegate {
     func updateTrackers() {
         updateVisibleCategoryForSelectedDay(currentDate)

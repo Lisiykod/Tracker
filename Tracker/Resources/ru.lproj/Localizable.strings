@@ -27,6 +27,8 @@
 "deleteActionSheetTitle" = "Уверены что хотите удалить трекер?";
 "deleteActionTitle" = "Удалить";
 "cancelActionTitle" = "Отмена";
+"searchPlaceholderTitle" = "Поиск";
+"filterButton" = "Поиск";
 
 // Create New Habbit
 
