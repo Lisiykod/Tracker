@@ -91,8 +91,9 @@ final class TrackersService {
         trackerCategoryStore.deleteTrackerFromCategory(tracker)
     }
     
-    func updatePinTrackerStatus(_ tracker: Tracker) {
-        trackerStore.updatePinTrackerStatus(tracker: tracker)
+    func updateTracker(_ tracker: Tracker) {
+        trackerStore.updateTracker(tracker: tracker)
+        delegate?.updateTrackers()
     }
     
     
@@ -144,7 +145,7 @@ final class TrackersService {
             return TrackerCategory(title: category.title, trackers: filteredWithPinningTracker)
         }
         
-        if !pinnedTrackers.isEmpty {
+        if !pinnedTrackers[0].trackers.isEmpty {
             allVisibleCategories.insert(contentsOf: pinnedTrackers, at: 0)
         }
         

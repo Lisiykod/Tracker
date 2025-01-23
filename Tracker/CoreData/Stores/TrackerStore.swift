@@ -84,11 +84,15 @@ final class TrackerStore: NSObject {
         )
     }
     
-    func updatePinTrackerStatus(tracker: Tracker) {
+    func updateTracker(tracker: Tracker) {
         let fetchedTrackers = fetchedResultsController.fetchedObjects
         guard let fetchedTracker = fetchedTrackers?.first(where: { $0.id == tracker.id }) else {
             return
         }
+        fetchedTracker.title = tracker.title
+        fetchedTracker.emoji = tracker.emoji
+        fetchedTracker.color = colorMarshalling.hexString(from: tracker.color)
+        fetchedTracker.schedule = tracker.schedule as NSObject
         fetchedTracker.isPinned = tracker.isPinned
         DataBaseService.shared.saveContext()
     }

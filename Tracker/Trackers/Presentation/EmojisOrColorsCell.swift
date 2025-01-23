@@ -45,6 +45,13 @@ final class EmojisOrColorsCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        emojiLabel.text = ""
+        emojiBackground.backgroundColor = .clear
+        colorView.backgroundColor = .clear
+        colorViewSelectedBackground.layer.borderWidth = 0
+    }
+    
     // MARK: - Public Methods
     
     func configureEmoji(with emoji: String) {

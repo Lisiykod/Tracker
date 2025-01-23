@@ -7,7 +7,11 @@
 
 import UIKit
 
-final class CreateNewHabitViewController: UIViewController {
+protocol EditHabbitOrEventPtotocol: AnyObject {
+    func trackerForEdit(tracker: Tracker, category: TrackerCategory, daysCompleted: Int)
+}
+
+final class CreateNewHabitViewController: UIViewController, EditHabbitOrEventPtotocol {
     
     private let trackersService = TrackersService.shared
     private var categoryName: String?
@@ -21,6 +25,9 @@ final class CreateNewHabitViewController: UIViewController {
     private var selectedColor: UIColor?
     private var emojiIndexPath: IndexPath?
     private var colorIndexPath: IndexPath?
+    private var isPinned: Bool = false
+    private var isEditMode: Bool = false
+    private var editingTracker: Tracker?
     
     private enum EmojisOrColors: Int {
         case emojis = 0
@@ -100,6 +107,13 @@ final class CreateNewHabitViewController: UIViewController {
         return collectionView
     }()
     
+    private lazy var daysCount: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+        label.textAlignment = .center
+        return label
+    }()
+    
     // MARK: - Initializers
     
     init(isHabit: Bool) {
@@ -120,23 +134,55 @@ final class CreateNewHabitViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         textField.becomeFirstResponder()
+        collectionView.reloadData()
         tableView.reloadData()
+    }
+    
+    // MARK: - Public Methods
+    
+    func trackerForEdit(tracker: Tracker, category: TrackerCategory, daysCompleted: Int) {
+        isEditMode = true
+        
+        textField.text = tracker.title
+        categoryName = category.title
+        self.schedule = tracker.schedule
+        editingTracker = tracker
+        daysCount.text = String.localizedStringWithFormat(NSLocalizedString("numberOfDays", comment: "Text for number of days"), daysCompleted)
+        
+        if let emojiIndex = emojis.firstIndex(where: {$0 == tracker.emoji}) {
+            selectedEmoji = tracker.emoji
+            emojiIndexPath = IndexPath(item: emojiIndex, section: 0)
+        }
+        
+        if let colorIndex = colors.firstIndex(where: {$0 == tracker.color}) {
+            selectedColor = tracker.color
+            colorIndexPath = IndexPath(item: colorIndex, section: 1)
+        }
+        
+        tableView.reloadData()
+        collectionView.reloadData()
     }
     
     // MARK: - Private Methods
     
     private func setupViews() {
         view.backgroundColor = .ypWhite
-        view.addSubviews([textStackView, tableView, buttonStackView, collectionView])
-        navigationItem.title = "Новая привычка"
+        view.addSubviews([textStackView, tableView, buttonStackView, collectionView, daysCount])
+        navigationItem.title = isEditMode ? "Редактирование привычки" : "Новая привычка"
         cautionLabel.isHidden = true
+        daysCount.isHidden = isEditMode ? false : true
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
+            
+            daysCount.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            view.trailingAnchor.constraint(equalTo: daysCount.trailingAnchor, constant: 16),
+            daysCount.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            
             textStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             view.trailingAnchor.constraint(equalTo: textStackView.trailingAnchor, constant: 16),
-            textStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            textStackView.topAnchor.constraint(equalTo: isEditMode ? daysCount.bottomAnchor : view.safeAreaLayoutGuide.topAnchor, constant: isEditMode ? 40 : 24),
             textField.heightAnchor.constraint(equalToConstant: 75),
             
             tableView.topAnchor.constraint(equalTo: textStackView.bottomAnchor, constant: 24),
@@ -197,6 +243,7 @@ final class CreateNewHabitViewController: UIViewController {
               let selectedEmoji = selectedEmoji,
               let selectedColor = selectedColor
         else { return }
+        
         let newTracker = Tracker(
             id: UUID(),
             title: title,
@@ -204,9 +251,26 @@ final class CreateNewHabitViewController: UIViewController {
             emoji: selectedEmoji,
             schedule: schedule,
             isHabit: isHabit,
-            isPinned: false
+            isPinned: isPinned
         )
-        trackersService.addTracker(tracker: newTracker, for: categoryName)
+        
+        if !isEditMode {
+            trackersService.addTracker(tracker: newTracker, for: categoryName)
+        } else {
+            if let editingTracker {
+                let trackerToUpdate = Tracker(
+                    id: editingTracker.id,
+                    title: title,
+                    color: selectedColor,
+                    emoji: selectedEmoji,
+                    schedule: schedule,
+                    isHabit: isHabit,
+                    isPinned: editingTracker.isPinned
+                )
+            
+                trackersService.updateTracker(trackerToUpdate)
+            }
+        }
         view?.window?.rootViewController?.dismiss(animated: true)
     }
     
@@ -383,6 +447,25 @@ extension CreateNewHabitViewController: UICollectionViewDelegateFlowLayout {
         
         enableCreateButton()
     }
+    
+//    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+//        if isEditMode {
+//            let cell = collectionView.cellForItem(at: indexPath) as? EmojisOrColorsCell
+//            
+//            
+//            let section = EmojisOrColors(rawValue: indexPath.section)
+//            switch section {
+//            case .emojis:
+//                cell?.selectedEmoji()
+//            case .colors:
+//                cell?.selectedColor(with: colors[indexPath.row])
+//            case .none:
+//                print("not items for selection")
+//            }
+//            enableCreateButton()
+//        }
+//        return false
+//    }
     
 }
 

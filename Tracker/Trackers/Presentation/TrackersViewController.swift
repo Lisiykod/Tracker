@@ -237,7 +237,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
             }
             
             let editAction = UIAction(title: editTitile) { _ in
-                
+                self.editTracker(at: indexPaths)
             }
             
             let deleteAction = UIAction(title: deleteTitile, attributes: .destructive) { _ in
@@ -257,7 +257,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     private func pinTracker(at indexPath: IndexPath) {
         var tracker = categories[indexPath.section].trackers[indexPath.row]
         tracker.isPinned = true
-        trackerService.updatePinTrackerStatus(tracker)
+        trackerService.updateTracker(tracker)
         updateVisibleCategoryForSelectedDay(currentDate)
         collection.reloadData()
     }
@@ -265,7 +265,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     private func unpinTracker(at indexPath: IndexPath) {
         var tracker = categories[indexPath.section].trackers[indexPath.row]
         tracker.isPinned = false
-        trackerService.updatePinTrackerStatus(tracker)
+        trackerService.updateTracker(tracker)
         updateVisibleCategoryForSelectedDay(currentDate)
         collection.reloadData()
     }
@@ -288,7 +288,31 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     }
     
     private func editTracker(at indexPath: IndexPath) {
+        let dataBaseCategories = trackerService.fetchCategories()
+        let tracker = categories[indexPath.section].trackers[indexPath.row]
+        var completedDays = 0
         
+        if completedTrackers.contains(where: { $0.id == tracker.id }) {
+            completedDays = completedTrackers.filter({ $0.id == tracker.id }).count
+        }
+        
+        let categoryIndex = dataBaseCategories.firstIndex { category in
+            category.trackers.contains(where: { $0.id == tracker.id })
+        }
+        
+        guard let categoryIndex else { return }
+        let category = dataBaseCategories[categoryIndex]
+        
+        let editHabbitVC = CreateNewHabitViewController(isHabit: tracker.isHabit)
+        let editEventVC = CreateNewEventViewController(isHabit: tracker.isHabit)
+        
+        if tracker.isHabit {
+            editHabbitVC.trackerForEdit(tracker: tracker, category: category, daysCompleted: completedDays)
+        } else {
+            editEventVC.trackerForEdit(tracker: tracker, category: category, daysCompleted: completedDays)
+        }
+        let newNavController = UINavigationController(rootViewController: tracker.isHabit ? editHabbitVC : editEventVC)
+        navigationController?.present(newNavController, animated: true)
     }
     
 }
