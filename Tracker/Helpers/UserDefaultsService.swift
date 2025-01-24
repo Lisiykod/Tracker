@@ -14,6 +14,7 @@ final class UserDefaultsService {
     
     private enum Keys: String {
         case launchKey = "isFirstLaunch"
+        case selectedFilterKey = "selectedFilter"
     }
     
     private var isFirstLaunch: Bool {
@@ -26,6 +27,16 @@ final class UserDefaultsService {
         }
     }
     
+    private(set) var selectedFilter: String? {
+        get {
+            storage.string(forKey: Keys.selectedFilterKey.rawValue)
+        }
+        
+        set {
+            storage.set(newValue, forKey: Keys.selectedFilterKey.rawValue)
+        }
+    }
+    
     private init() {}
     
     func getIsFirstLaunch() -> Bool {
@@ -34,6 +45,10 @@ final class UserDefaultsService {
     
     func setIsFirstLaunch(_ value: Bool) {
         isFirstLaunch = value
+    }
+    
+    func setSelectedFilter(_ filter: String) {
+        selectedFilter = filter
     }
     
 }

@@ -97,7 +97,7 @@ final class TrackersService {
     }
     
     
-    func getVisibleCategoriesForDate(_ selectedDate: Date, recordTracker: Set<TrackerRecord>) -> [TrackerCategory] {
+    func getVisibleCategoriesForDate(_ selectedDate: Date, recordTracker: Set<TrackerRecord>, filter: FilterType) -> [TrackerCategory] {
         let weekday = Calendar.current.component(.weekday, from: selectedDate)
         let filterWeekday = weekday == 1 ? 7 : weekday - 1
         let fecthTrackers = fetchCategories()
@@ -111,7 +111,7 @@ final class TrackersService {
                     return weekday.rawValue == filterWeekday
                 }
             }
-
+            
             let filteredEventTrackers = allFilteredTrackers.filter { tracker in
                 if !tracker.isHabit {
                     let isEventRecordOnDate = recordTracker.contains { trackerRecord in
@@ -127,12 +127,12 @@ final class TrackersService {
                 
                 return true
             }
-        
+            
             let filteredWithPinningTracker = filteredEventTrackers.filter { tracker in
                 if tracker.isPinned {
                     trackers.append(tracker)
                     pinnedTrackers = [TrackerCategory(title: "Закрепленные", trackers: trackers)]
-
+                    
                     return false
                 }
                 return true
@@ -149,7 +149,16 @@ final class TrackersService {
             allVisibleCategories.insert(contentsOf: pinnedTrackers, at: 0)
         }
         
-        return allVisibleCategories
+        switch filter {
+        case .all, .today:
+            return allVisibleCategories
+        case .completed:
+            let completedCategories = getCompletedOrNotComplitedTrackers(allVisibleCategories, selectedDate: selectedDate, recordTracker: recordTracker, isComplited: true)
+            return completedCategories
+        case .uncompleted:
+            let uncompletedCategories = getCompletedOrNotComplitedTrackers(allVisibleCategories, selectedDate: selectedDate, recordTracker: recordTracker, isComplited: false)
+            return uncompletedCategories
+        }
     }
     
     func getSearchedTrackers(_ searchText: String, filtered categories: [TrackerCategory]) -> [TrackerCategory] {
@@ -165,6 +174,31 @@ final class TrackersService {
         }
         
         return filteredCategories
+    }
+    
+    func getCompletedOrNotComplitedTrackers(_ categories: [TrackerCategory], selectedDate: Date, recordTracker: Set<TrackerRecord>, isComplited: Bool) -> [TrackerCategory] {
+            let complitedTrackers = categories.compactMap { category -> TrackerCategory? in
+                let complitedTrackers = category.trackers.filter { tracker in
+                    if isComplited {
+                        return recordTracker.contains { trackerRecord in
+                            return trackerRecord.date == selectedDate && trackerRecord.id == tracker.id
+                        }
+                        
+                    } else {
+                        return !recordTracker.contains { trackerRecord in
+                            return trackerRecord.date == selectedDate && trackerRecord.id == tracker.id
+                        }
+                    }
+                }
+                
+                if complitedTrackers.isEmpty {
+                    return nil
+                }
+                
+                return TrackerCategory(title: category.title, trackers: complitedTrackers)
+            }
+        
+        return complitedTrackers
     }
     
     func addRecord(_ record: TrackerRecord) {

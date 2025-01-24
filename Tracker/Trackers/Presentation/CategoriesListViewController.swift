@@ -170,7 +170,7 @@ extension CategoriesListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "newCategoryCell", for: indexPath)
-        cell.accessoryType = .checkmark
+//        cell.accessoryType = .checkmark
         cell.textLabel?.text = viewModel.getCategoryTitle(at: indexPath.row)
         cell.backgroundColor = .ypBackgroundDay
         cell.accessoryType = isSelectedCategory ? .checkmark : .none
