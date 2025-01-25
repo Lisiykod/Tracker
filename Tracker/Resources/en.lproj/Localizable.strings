@@ -20,6 +20,16 @@
 "emptyTrackersLabel" = "What are we going to track?";
 "emptySearchOrFilterLabel" = "Nothing found";
 
+"pinTitle" = "Pin";
+"unpinTitile" = "Unpin";
+"deleteTitile" = "Delete";
+"editTitile" = "Edit";
+"deleteActionSheetTitle" = "Are you sure you want to delete the tracker??";
+"deleteActionTitle" = "Delete";
+"cancelActionTitle" = "Cancel";
+"searchPlaceholderTitle" = "Search";
+"filterButton" = "Filters";
+
 // Create New Habbit
 
 // Create New Habbit
@@ -31,4 +41,6 @@
 // Schedule
 
 // Statistics
+
+"trackersCompleted" = "Trackers completed";
 

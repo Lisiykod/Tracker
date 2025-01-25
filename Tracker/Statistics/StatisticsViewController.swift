@@ -10,6 +10,7 @@ import UIKit
 final class StatisticsViewController: UIViewController {
     
     private var completedTrackers = TrackersService.shared.fetchRecords()
+    private let trackersCompletedTitle = NSLocalizedString("trackersCompleted", comment: "Text displayed trackers completed statistics")
     
     private lazy var emptyStatisticsImage: UIImageView = {
         let image = UIImage(named: "empty_statistics")
@@ -43,6 +44,7 @@ final class StatisticsViewController: UIViewController {
         tableView.separatorStyle = .none
         return tableView
     }()
+    
     
     // MARK: - Lyfe Cycle
     
@@ -105,7 +107,7 @@ extension StatisticsViewController: UITableViewDataSource {
         
         cell.configureCell(
             completedDays: completedTrackers.count,
-            description: "Трекеров завершено"
+            description: trackersCompletedTitle
         )
         
         return cell
