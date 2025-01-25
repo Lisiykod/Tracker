@@ -69,6 +69,13 @@ final class TrackerCollectionCell: UICollectionViewCell {
         return label
     }()
     
+    private lazy var pinImageView: UIImageView = {
+        let image = UIImage(named: "pin_image")
+        let imageView = UIImageView(image: image)
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
     // MARK: - Life cycle
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -109,12 +116,14 @@ final class TrackerCollectionCell: UICollectionViewCell {
         } else {
             plusButton.isHidden = false
         }
+        
+        pinImageView.isHidden = tracker.isPinned ? false : true
     }
     
     // MARK: - Private Methods
     private func setupView() {
         contentView.backgroundColor = .ypWhite
-        contentView.addSubviews([colorView, backgroundEmojiView, emojiLabel, titleLabel, dateLabel, plusButton])
+        contentView.addSubviews([colorView, backgroundEmojiView, emojiLabel, titleLabel, dateLabel, plusButton, pinImageView])
     }
     
     private func setupConstraints() {
@@ -145,7 +154,12 @@ final class TrackerCollectionCell: UICollectionViewCell {
             contentView.bottomAnchor.constraint(equalTo: plusButton.bottomAnchor, constant: 16),
             
             dateLabel.centerYAnchor.constraint(equalTo: plusButton.centerYAnchor),
-            dateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
+            dateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            
+            pinImageView.centerYAnchor.constraint(equalTo: backgroundEmojiView.centerYAnchor),
+            colorView.trailingAnchor.constraint(equalTo: pinImageView.trailingAnchor, constant: 4),
+            pinImageView.widthAnchor.constraint(equalToConstant: 24),
+            pinImageView.heightAnchor.constraint(equalToConstant: 24),
             
         ])
     }
