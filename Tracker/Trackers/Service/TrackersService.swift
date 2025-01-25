@@ -177,26 +177,26 @@ final class TrackersService {
     }
     
     func getCompletedOrNotComplitedTrackers(_ categories: [TrackerCategory], selectedDate: Date, recordTracker: Set<TrackerRecord>, isComplited: Bool) -> [TrackerCategory] {
-            let complitedTrackers = categories.compactMap { category -> TrackerCategory? in
-                let complitedTrackers = category.trackers.filter { tracker in
-                    if isComplited {
-                        return recordTracker.contains { trackerRecord in
-                            return trackerRecord.date == selectedDate && trackerRecord.id == tracker.id
-                        }
-                        
-                    } else {
-                        return !recordTracker.contains { trackerRecord in
-                            return trackerRecord.date == selectedDate && trackerRecord.id == tracker.id
-                        }
+        let complitedTrackers = categories.compactMap { category -> TrackerCategory? in
+            let complitedTrackers = category.trackers.filter { tracker in
+                if isComplited {
+                    return recordTracker.contains { trackerRecord in
+                        return trackerRecord.date == selectedDate && trackerRecord.id == tracker.id
+                    }
+                    
+                } else {
+                    return !recordTracker.contains { trackerRecord in
+                        return trackerRecord.date == selectedDate && trackerRecord.id == tracker.id
                     }
                 }
-                
-                if complitedTrackers.isEmpty {
-                    return nil
-                }
-                
-                return TrackerCategory(title: category.title, trackers: complitedTrackers)
             }
+            
+            if complitedTrackers.isEmpty {
+                return nil
+            }
+            
+            return TrackerCategory(title: category.title, trackers: complitedTrackers)
+        }
         
         return complitedTrackers
     }
@@ -216,6 +216,7 @@ final class TrackersService {
     func deleteAllRecords(_ tracker: Tracker) {
         trackerRecordStore.deleteAllRecords(tracker)
     }
+    
     // MARK: - Private Methods
     
     private init() { }
