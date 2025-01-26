@@ -15,6 +15,7 @@ final class UserDefaultsService {
     private enum Keys: String {
         case launchKey = "isFirstLaunch"
         case selectedFilterKey = "selectedFilter"
+        case selectedCategoryKey = "selectedCategory"
     }
     
     private var isFirstLaunch: Bool {
@@ -29,11 +30,21 @@ final class UserDefaultsService {
     
     private(set) var selectedFilter: String? {
         get {
-            storage.string(forKey: Keys.selectedFilterKey.rawValue)
+            storage.string(forKey: Keys.selectedFilterKey.rawValue) ?? FilterType.all.rawValue
         }
         
         set {
             storage.set(newValue, forKey: Keys.selectedFilterKey.rawValue)
+        }
+    }
+    
+    private(set) var selectedCategory: String? {
+        get {
+            storage.string(forKey: Keys.selectedCategoryKey.rawValue) ?? ""
+        }
+        
+        set {
+            storage.set(newValue, forKey: Keys.selectedCategoryKey.rawValue)
         }
     }
     
@@ -49,6 +60,10 @@ final class UserDefaultsService {
     
     func setSelectedFilter(_ filter: String) {
         selectedFilter = filter
+    }
+    
+    func setSelectedCategory(_ category: String) {
+        selectedCategory = category
     }
     
 }

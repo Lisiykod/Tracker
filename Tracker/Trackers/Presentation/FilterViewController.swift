@@ -93,6 +93,8 @@ extension FilterViewController: UITableViewDelegate {
             } else {
                 cell.accessoryType = .none
             }
+            
+            selectIndexPath = nil
         }
     }
 }

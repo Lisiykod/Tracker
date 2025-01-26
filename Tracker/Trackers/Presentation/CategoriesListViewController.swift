@@ -15,10 +15,10 @@ protocol SelectedCategoryDelegate: AnyObject {
 final class CategoriesListViewController: UIViewController {
     
     weak var delegate: SelectedCategoryDelegate?
-    private var trackersService = TrackersService.shared
+    private var storage = UserDefaultsService.shared
     private var viewModel: CategoriesViewModel
-    private var isSelectedCategory: Bool = false
     private var isEditMode: Bool = false
+    private var selectIndexPath: IndexPath?
     
     private lazy var emptyCategoryImage: UIImageView = {
         let image = UIImage(named: "empty_trackers_image")
@@ -86,6 +86,12 @@ final class CategoriesListViewController: UIViewController {
         }
         viewModel.fetchCategories()
         checkCategoriesIsEmpty()
+    }
+    
+    // MARK: - Public Methods
+    
+    func selectedCategory(at title: String) {
+        storage.setSelectedCategory(title)
     }
     
     // MARK: - Private Methods
@@ -178,10 +184,14 @@ extension CategoriesListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "newCategoryCell", for: indexPath)
-        //        cell.accessoryType = .checkmark
         cell.textLabel?.text = viewModel.getCategoryTitle(at: indexPath.row)
         cell.backgroundColor = .ypBackgroundDay
-        cell.accessoryType = isSelectedCategory ? .checkmark : .none
+        if cell.textLabel?.text == storage.selectedCategory, isEditMode {
+            cell.accessoryType = .checkmark
+            selectIndexPath = IndexPath(row: indexPath.row, section: indexPath.section)
+        } else {
+            cell.accessoryType = .none
+        }
         cell.selectionStyle = .none
         cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         return cell
@@ -193,9 +203,14 @@ extension CategoriesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let cell = tableView.cellForRow(at: indexPath) {
-            if !isSelectedCategory {
+            if selectIndexPath != indexPath, isEditMode {
                 cell.accessoryType = .checkmark
+                if let selectIndexPath {
+                    let prevCell = tableView.cellForRow(at: selectIndexPath)
+                    prevCell?.accessoryType = .none
+                }
                 guard let title = viewModel.getCategoryTitle(at: indexPath.row) else { return }
+                storage.setSelectedCategory(title)
                 delegate?.categoryDidSelect(name: title)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                     self?.dismiss(animated: true)
@@ -203,6 +218,8 @@ extension CategoriesListViewController: UITableViewDelegate {
             } else {
                 cell.accessoryType = .none
             }
+            
+            selectIndexPath = nil
         }
     }
     

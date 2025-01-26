@@ -155,6 +155,10 @@ final class TrackersViewController: UIViewController {
         completedTrackers = trackerService.fetchRecords()
         guard let date = day.ignoringTime else { return }
         categories = trackerService.getVisibleCategoriesForDate(date, recordTracker: completedTrackers, filter: filter)
+        if selectedFilterType == .completed, completedTrackers.isEmpty {
+            selectedFilterType = .all
+            categories = trackerService.getVisibleCategoriesForDate(date, recordTracker: completedTrackers, filter: filter)
+        }
         makeViewVisible(isDateFilter: true)
         collection.reloadData()
     }

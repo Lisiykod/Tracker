@@ -28,6 +28,7 @@ final class CreateNewHabitViewController: UIViewController, EditHabbitOrEventPto
     private var isPinned: Bool = false
     private var isEditMode: Bool = false
     private var editingTracker: Tracker?
+    private var oldCategoryName: String?
     
     private enum EmojisOrColors: Int {
         case emojis = 0
@@ -145,6 +146,7 @@ final class CreateNewHabitViewController: UIViewController, EditHabbitOrEventPto
         
         textField.text = tracker.title
         categoryName = category.title
+        oldCategoryName = category.title
         self.schedule = tracker.schedule
         editingTracker = tracker
         daysCount.text = String.localizedStringWithFormat(NSLocalizedString("numberOfDays", comment: "Text for number of days"), daysCompleted)
@@ -207,6 +209,9 @@ final class CreateNewHabitViewController: UIViewController, EditHabbitOrEventPto
         let viewModel = CategoriesViewModel()
         let categoryViewController = CategoriesListViewController(viewModel: viewModel, isEditMode: !isEditMode ? false : true)
         categoryViewController.delegate = self
+        if isEditMode, let categoryName = categoryName {
+            categoryViewController.selectedCategory(at: categoryName)
+        }
         let newNavController = UINavigationController(rootViewController: categoryViewController)
         navigationController?.present(newNavController, animated: true)
     }
@@ -267,8 +272,13 @@ final class CreateNewHabitViewController: UIViewController, EditHabbitOrEventPto
                     isHabit: isHabit,
                     isPinned: editingTracker.isPinned
                 )
-            
-                trackersService.updateTracker(trackerToUpdate)
+                
+                if oldCategoryName == categoryName {
+                    trackersService.updateTracker(trackerToUpdate)
+                } else {
+                    trackersService.deleteTracker(trackerToUpdate)
+                    trackersService.addTracker(tracker: trackerToUpdate, for: categoryName)
+                }
             }
         }
         view?.window?.rootViewController?.dismiss(animated: true)
