@@ -9,6 +9,7 @@ import UIKit
 
 protocol CreateNewCategoryDelegate: AnyObject {
     func didCreateCategory(name: String)
+    func didUpdateCategory(oldTitle: String, newTitle: String)
 }
 
 final class CreateCategoryViewController: UIViewController {
@@ -16,6 +17,8 @@ final class CreateCategoryViewController: UIViewController {
     weak var delegate: CreateNewCategoryDelegate?
     
     private let maximumTextCount: Int = 38
+    private var isEditingMode: Bool = false
+    private var oldTitle: String?
     
     private lazy var textField: UITextField = {
         let textField = BasicTextField(placeholder: "Введите название категории")
@@ -61,10 +64,19 @@ final class CreateCategoryViewController: UIViewController {
         super.viewWillAppear(animated)
         textField.becomeFirstResponder()
     }
+    
+    // MARK: - Public Methods
+    
+    func categoryForEdit(with title: String) {
+        isEditingMode = true
+        textField.text = title
+        oldTitle = title
+    }
+    
     // MARK: - Private Methods
     
     private func setupViews() {
-        navigationItem.title = "Новая категория"
+        navigationItem.title = isEditingMode ? "Редактирование категории" : "Новая категория"
         view.backgroundColor = .ypWhite
         view.addSubviews([stackView, doneButton])
         navigationItem.hidesBackButton = true
@@ -94,7 +106,12 @@ final class CreateCategoryViewController: UIViewController {
     @objc
     private func doneButtonTapped() {
         guard let text = textField.text else { return }
-        delegate?.didCreateCategory(name: text)
+        if !isEditingMode {
+            delegate?.didCreateCategory(name: text)
+        } else {
+            guard let oldTitle else { return }
+            delegate?.didUpdateCategory(oldTitle: oldTitle, newTitle: text)
+        }
         navigationController?.dismiss(animated: true)
     }
 
@@ -113,6 +130,7 @@ extension CreateCategoryViewController: UITextFieldDelegate {
         } else {
             cautionLabel.isHidden = true
         }
+        enableDoneButton()
         return true
     }
 }

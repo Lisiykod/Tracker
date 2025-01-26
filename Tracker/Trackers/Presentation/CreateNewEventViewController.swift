@@ -165,7 +165,7 @@ final class CreateNewEventViewController: UIViewController {
     private func setupViews() {
         view.backgroundColor = .ypWhite
         view.addSubviews([textStackView, tableView, buttonStackView, collectionView, daysCount])
-        navigationItem.title = isEditMode ? "Редактирование привычки" : "Новая привычка"
+        navigationItem.title = isEditMode ? "Редактирование нерегулярного события" : "Новая привычка"
         cautionLabel.isHidden = true
         daysCount.isHidden = isEditMode ? false : true
     }
@@ -202,7 +202,7 @@ final class CreateNewEventViewController: UIViewController {
     
     private func showCreateCategoryViewController() {
         let viewModel = CategoriesViewModel()
-        let categoryViewController = CategoriesListViewController(viewModel: viewModel)
+        let categoryViewController = CategoriesListViewController(viewModel: viewModel, isEditMode: !isEditMode ? false : true)
         categoryViewController.delegate = self
         let newNavController = UINavigationController(rootViewController: categoryViewController)
         navigationController?.present(newNavController, animated: true)

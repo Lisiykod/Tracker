@@ -96,6 +96,15 @@ final class TrackersService {
         delegate?.updateTrackers()
     }
     
+    func updateCategory(_ oldTitle: String, newTitle: String) {
+        trackerCategoryStore.updateCategory(oldTitle, newTitle: newTitle)
+    }
+    
+    func deleteCategory(category title: String) {
+        trackerCategoryStore.deleteCategory(title)
+        delegate?.updateTrackers()
+    }
+    
     
     func getVisibleCategoriesForDate(_ selectedDate: Date, recordTracker: Set<TrackerRecord>, filter: FilterType) -> [TrackerCategory] {
         let weekday = Calendar.current.component(.weekday, from: selectedDate)

@@ -205,7 +205,7 @@ final class CreateNewHabitViewController: UIViewController, EditHabbitOrEventPto
     
     private func showCreateCategoryViewController() {
         let viewModel = CategoriesViewModel()
-        let categoryViewController = CategoriesListViewController(viewModel: viewModel)
+        let categoryViewController = CategoriesListViewController(viewModel: viewModel, isEditMode: !isEditMode ? false : true)
         categoryViewController.delegate = self
         let newNavController = UINavigationController(rootViewController: categoryViewController)
         navigationController?.present(newNavController, animated: true)
