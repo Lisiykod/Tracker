@@ -26,6 +26,7 @@ final class CreateNewEventViewController: UIViewController {
     private var isEditMode: Bool = false
     private var editingTracker: Tracker?
     private var oldCategoryName: String?
+    private let colorMarshalling = UIColorMarshalling()
     
     private enum EmojisOrColors: Int {
         case emojis = 0
@@ -152,7 +153,7 @@ final class CreateNewEventViewController: UIViewController {
             emojiIndexPath = IndexPath(item: emojiIndex, section: 0)
         }
         
-        if let colorIndex = colors.firstIndex(where: {$0 == tracker.color}) {
+        if let colorIndex = colors.firstIndex(where: {colorMarshalling.hexString(from: $0) == colorMarshalling.hexString(from: tracker.color)}) {
             selectedColor = tracker.color
             colorIndexPath = IndexPath(item: colorIndex, section: 1)
         }
@@ -342,8 +343,16 @@ extension CreateNewEventViewController: UICollectionViewDataSource {
         switch section {
         case .emojis:
             cell.configureEmoji(with: emojis[indexPath.row])
+            if emojiIndexPath?.row == indexPath.row {
+                cell.selectedEmoji()
+            }
         case .colors:
             cell.configureColor(with: colors[indexPath.row])
+            if let colorIndexPath {
+                if colorIndexPath.row == indexPath.row {
+                    cell.selectedColor(with: colors[colorIndexPath.row])
+                }
+            }
         case .none:
             print("\(#function) not section")
         }

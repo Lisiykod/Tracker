@@ -7,11 +7,7 @@
 
 import UIKit
 
-protocol EditHabbitOrEventPtotocol: AnyObject {
-    func trackerForEdit(tracker: Tracker, category: TrackerCategory, daysCompleted: Int)
-}
-
-final class CreateNewHabitViewController: UIViewController, EditHabbitOrEventPtotocol {
+final class CreateNewHabitViewController: UIViewController {
     
     private let trackersService = TrackersService.shared
     private var categoryName: String?
@@ -29,6 +25,7 @@ final class CreateNewHabitViewController: UIViewController, EditHabbitOrEventPto
     private var isEditMode: Bool = false
     private var editingTracker: Tracker?
     private var oldCategoryName: String?
+    private let colorMarshalling = UIColorMarshalling()
     
     private enum EmojisOrColors: Int {
         case emojis = 0
@@ -156,7 +153,8 @@ final class CreateNewHabitViewController: UIViewController, EditHabbitOrEventPto
             emojiIndexPath = IndexPath(item: emojiIndex, section: 0)
         }
         
-        if let colorIndex = colors.firstIndex(where: {$0 == tracker.color}) {
+        
+        if let colorIndex = colors.firstIndex(where: {colorMarshalling.hexString(from: $0) == colorMarshalling.hexString(from: tracker.color)}) {
             selectedColor = tracker.color
             colorIndexPath = IndexPath(item: colorIndex, section: 1)
         }
@@ -374,12 +372,20 @@ extension CreateNewHabitViewController: UICollectionViewDataSource {
         switch section {
         case .emojis:
             cell.configureEmoji(with: emojis[indexPath.row])
+            if emojiIndexPath?.row == indexPath.row {
+                cell.selectedEmoji()
+            }
         case .colors:
             cell.configureColor(with: colors[indexPath.row])
+            if let colorIndexPath {
+                if colorIndexPath.row == indexPath.row {
+                    cell.selectedColor(with: colors[colorIndexPath.row])
+                }
+            }
         case .none:
             print("\(#function) not section")
         }
-
+        
         return cell
     }
     
@@ -457,25 +463,6 @@ extension CreateNewHabitViewController: UICollectionViewDelegateFlowLayout {
         
         enableCreateButton()
     }
-    
-//    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-//        if isEditMode {
-//            let cell = collectionView.cellForItem(at: indexPath) as? EmojisOrColorsCell
-//            
-//            
-//            let section = EmojisOrColors(rawValue: indexPath.section)
-//            switch section {
-//            case .emojis:
-//                cell?.selectedEmoji()
-//            case .colors:
-//                cell?.selectedColor(with: colors[indexPath.row])
-//            case .none:
-//                print("not items for selection")
-//            }
-//            enableCreateButton()
-//        }
-//        return false
-//    }
     
 }
 
