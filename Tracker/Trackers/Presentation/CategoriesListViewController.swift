@@ -203,7 +203,7 @@ extension CategoriesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let cell = tableView.cellForRow(at: indexPath) {
-            if selectIndexPath != indexPath, isEditMode {
+            if selectIndexPath != indexPath, isEditMode == false {
                 cell.accessoryType = .checkmark
                 if let selectIndexPath {
                     let prevCell = tableView.cellForRow(at: selectIndexPath)
