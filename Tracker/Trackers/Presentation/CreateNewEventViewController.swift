@@ -77,7 +77,7 @@ final class CreateNewEventViewController: UIViewController {
         button.baseConfiguration(with: "Создать")
         button.backgroundColor = .ypGray
         button.addTarget(self, action: #selector(createNewEvent), for: .touchUpInside)
-        button.isEnabled = true
+        button.isEnabled = false
         return button
     }()
     

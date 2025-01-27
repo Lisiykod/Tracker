@@ -14,6 +14,7 @@ final class TrackersViewController: UIViewController {
     private var filteredCategories: [TrackerCategory] = []
     private var completedTrackers: Set<TrackerRecord> = []
     private var currentDate: Date = Date()
+    private let analyticsService = AnalyticsService()
     private var selectedFilterType: FilterType {
         get {
             guard let selectedFilterFromStorage = UserDefaultsService.shared.selectedFilter else {
@@ -121,6 +122,16 @@ final class TrackersViewController: UIViewController {
         setupConstraints()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        analyticsService.trackerEvent(name: "openTrackers", parameters: ["event":"open", "screen":"Main"])
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        analyticsService.trackerEvent(name: "closedTrackers", parameters: ["event":"closed", "screen":"Main"])
+    }
+    
     // MARK: - Private methods
     
     private func setupViews() {
@@ -194,6 +205,7 @@ final class TrackersViewController: UIViewController {
     @objc
     private func addTracker() {
         let createTrackerController = CreateTrackerController()
+        analyticsService.trackerEvent(name: "addTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"add_track"])
         let newNavController = UINavigationController(rootViewController: createTrackerController)
         navigationController?.present(newNavController, animated: true)
         
@@ -211,6 +223,7 @@ final class TrackersViewController: UIViewController {
     private func filterButtonTapped() {
         let filterVC = FilterViewController()
         filterVC.delegate = self
+        analyticsService.trackerEvent(name: "addTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"filter"])
         let newNavController = UINavigationController(rootViewController: filterVC)
         navigationController?.present(newNavController, animated: true)
     }
@@ -337,6 +350,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
             trackerService.deleteTracker(categories[indexPath.section].trackers[indexPath.row])
             trackerService.deleteAllRecords(categories[indexPath.section].trackers[indexPath.row])
             updateVisibleCategoryForSelectedDay(currentDate,filter: selectedFilterType)
+            analyticsService.trackerEvent(name: "addTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"delete"])
             collection.reloadData()
         }
         
@@ -371,6 +385,8 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         } else {
             editEventVC.trackerForEdit(tracker: tracker, category: category, daysCompleted: completedDays)
         }
+        
+        analyticsService.trackerEvent(name: "addTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"edit"])
         let newNavController = UINavigationController(rootViewController: tracker.isHabit ? editHabbitVC : editEventVC)
         navigationController?.present(newNavController, animated: true)
     }
@@ -405,6 +421,7 @@ extension TrackersViewController: CompletedTrackerDelegate {
         let trackerRecord = TrackerRecord(id: id, date: date)
         trackerService.addRecord(trackerRecord)
         completedTrackers = trackerService.fetchRecords()
+        analyticsService.trackerEvent(name: "addTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"track"])
         collection.reloadItems(at: [indexPath])
     }
     

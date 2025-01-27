@@ -76,7 +76,7 @@ final class CreateNewHabitViewController: UIViewController {
         button.baseConfiguration(with: "Создать")
         button.backgroundColor = .ypGray
         button.addTarget(self, action: #selector(createNewHabit), for: .touchUpInside)
-        button.isEnabled = true
+        button.isEnabled = false
         return button
     }()
     
