@@ -155,6 +155,7 @@ final class TrackersViewController: UIViewController {
         completedTrackers = trackerService.fetchRecords()
         guard let date = day.ignoringTime else { return }
         categories = trackerService.getVisibleCategoriesForDate(date, recordTracker: completedTrackers, filter: filter)
+        // на случай, если нет ни одного завершенного трекера и кнопка фильтр никогда не будет видна
         if selectedFilterType == .completed, completedTrackers.isEmpty {
             selectedFilterType = .all
             categories = trackerService.getVisibleCategoriesForDate(date, recordTracker: completedTrackers, filter: filter)
