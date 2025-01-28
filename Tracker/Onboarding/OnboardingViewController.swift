@@ -18,6 +18,8 @@ final class OnboardingViewController: UIViewController {
         let buttonTitle = NSLocalizedString("buttonTitle", comment: "Text displayed on onboarding page button")
         button.baseConfiguration(with: buttonTitle)
         button.addTarget(self, action: #selector(goToTrackers), for: .touchUpInside)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .black
         return button
     }()
     
@@ -29,7 +31,7 @@ final class OnboardingViewController: UIViewController {
     private lazy var mainLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 32, weight: .bold)
-        label.textColor = .ypBlack
+        label.textColor = .black
         label.textAlignment = .center
         label.numberOfLines = 0
         return label
