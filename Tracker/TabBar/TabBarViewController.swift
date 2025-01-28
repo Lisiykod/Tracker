@@ -12,6 +12,7 @@ final class TabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTapBarViewControllers()
+        setAppearance()
     }
     
     private func setupTapBarViewControllers() {
@@ -42,5 +43,22 @@ final class TabBarViewController: UITabBarController {
         
         viewControllers = [navigationTrackers, navigationStatistics]
     }
+    
+    private func setAppearance() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.stackedLayoutAppearance.selected.iconColor = .ypBlue
+        if traitCollection.userInterfaceStyle == .dark {
+            appearance.shadowColor = .black
+        } else {
+            appearance.shadowColor = .ypGray
+        }
+        appearance.backgroundColor = .ypWhite
+        if #available(iOS 15, *) {
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
+        tabBar.standardAppearance = appearance
+    }
+
 }
 
