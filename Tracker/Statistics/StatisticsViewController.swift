@@ -51,21 +51,17 @@ final class StatisticsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
+        completedTrackers = TrackersService.shared.fetchRecords()
         setupViews()
         setupPlaceholderConstraints()
         setupTableViewConstraints()
-        if completedTrackers.isEmpty {
-            tableView.isHidden = true
-            stackView.isHidden = false
-        } else {
-            stackView.isHidden = true
-            tableView.isHidden = false
-        }
+        tableView.reloadData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         completedTrackers = TrackersService.shared.fetchRecords()
+        setupVisibleElements()
         tableView.reloadData()
     }
     
@@ -73,6 +69,17 @@ final class StatisticsViewController: UIViewController {
     
     private func setupViews() {
         view.addSubviews([stackView, tableView])
+        setupVisibleElements()
+    }
+    
+    private func setupVisibleElements() {
+        if completedTrackers.isEmpty {
+            tableView.isHidden = true
+            stackView.isHidden = false
+        } else {
+            stackView.isHidden = true
+            tableView.isHidden = false
+        }
     }
     
     private func setupPlaceholderConstraints() {
