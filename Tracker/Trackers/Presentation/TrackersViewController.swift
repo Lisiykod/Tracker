@@ -223,7 +223,7 @@ final class TrackersViewController: UIViewController {
     private func filterButtonTapped() {
         let filterVC = FilterViewController()
         filterVC.delegate = self
-        analyticsService.trackerEvent(name: "addTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"filter"])
+        analyticsService.trackerEvent(name: "filterTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"filter"])
         let newNavController = UINavigationController(rootViewController: filterVC)
         navigationController?.present(newNavController, animated: true)
     }
@@ -350,7 +350,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
             trackerService.deleteTracker(categories[indexPath.section].trackers[indexPath.row])
             trackerService.deleteAllRecords(categories[indexPath.section].trackers[indexPath.row])
             updateVisibleCategoryForSelectedDay(currentDate,filter: selectedFilterType)
-            analyticsService.trackerEvent(name: "addTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"delete"])
+            analyticsService.trackerEvent(name: "deleteTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"delete"])
             collection.reloadData()
         }
         
@@ -386,7 +386,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
             editEventVC.trackerForEdit(tracker: tracker, category: category, daysCompleted: completedDays)
         }
         
-        analyticsService.trackerEvent(name: "addTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"edit"])
+        analyticsService.trackerEvent(name: "editTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"edit"])
         let newNavController = UINavigationController(rootViewController: tracker.isHabit ? editHabbitVC : editEventVC)
         navigationController?.present(newNavController, animated: true)
     }
@@ -421,7 +421,7 @@ extension TrackersViewController: CompletedTrackerDelegate {
         let trackerRecord = TrackerRecord(id: id, date: date)
         trackerService.addRecord(trackerRecord)
         completedTrackers = trackerService.fetchRecords()
-        analyticsService.trackerEvent(name: "addTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"track"])
+        analyticsService.trackerEvent(name: "doneTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"track"])
         collection.reloadItems(at: [indexPath])
     }
     
