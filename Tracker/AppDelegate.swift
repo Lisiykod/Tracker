@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import AppMetricaCore
 
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -14,9 +13,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         WeekDaysTransformer.register()
-        
-        guard let configuration = AppMetricaConfiguration(apiKey: "a1bd30a8-884f-4fa8-9df2-2eadecee9db1") else { return true }
-        AppMetrica.activate(with: configuration)
+        AnalyticsService.configuration()
         
         return true
     }

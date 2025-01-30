@@ -73,13 +73,9 @@ final class StatisticsViewController: UIViewController {
     }
     
     private func setupVisibleElements() {
-        if completedTrackers.isEmpty {
-            tableView.isHidden = true
-            stackView.isHidden = false
-        } else {
-            stackView.isHidden = true
-            tableView.isHidden = false
-        }
+        let comletedTrackerArrayIsEmpty = completedTrackers.isEmpty
+        tableView.isHidden = comletedTrackerArrayIsEmpty
+        stackView.isHidden = !comletedTrackerArrayIsEmpty
     }
     
     private func setupPlaceholderConstraints() {

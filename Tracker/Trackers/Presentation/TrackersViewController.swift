@@ -14,7 +14,12 @@ final class TrackersViewController: UIViewController {
     private var filteredCategories: [TrackerCategory] = []
     private var completedTrackers: Set<TrackerRecord> = []
     private var currentDate: Date = Date()
-    private let analyticsService = AnalyticsService()
+    private var isDateFilter: Bool = true {
+        willSet {
+            makeViewVisible(isDateFilter: newValue)
+            collection.reloadData()
+        }
+    }
     private var selectedFilterType: FilterType {
         get {
             guard let selectedFilterFromStorage = UserDefaultsService.shared.selectedFilter else {
@@ -124,12 +129,12 @@ final class TrackersViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        analyticsService.trackerEvent(name: "openTrackers", parameters: ["event":"open", "screen":"Main"])
+        AnalyticsService.trackerEvent(name: "openTrackers", parameters: ["event":"open", "screen":"Main"])
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        analyticsService.trackerEvent(name: "closedTrackers", parameters: ["event":"closed", "screen":"Main"])
+        AnalyticsService.trackerEvent(name: "closedTrackers", parameters: ["event":"closed", "screen":"Main"])
     }
     
     // MARK: - Private methods
@@ -137,7 +142,7 @@ final class TrackersViewController: UIViewController {
     private func setupViews() {
         view.backgroundColor = .ypWhite
         view.addSubviews([datePicker, emptyImageTrackersStackView, collection, filterButton])
-        makeViewVisible(isDateFilter: true)
+        makeViewVisible(isDateFilter: isDateFilter)
     }
     
     private func setupConstraints() {
@@ -166,12 +171,12 @@ final class TrackersViewController: UIViewController {
         completedTrackers = trackerService.fetchRecords()
         guard let date = day.ignoringTime else { return }
         categories = trackerService.getVisibleCategoriesForDate(date, recordTracker: completedTrackers, filter: filter)
+        makeViewVisible(isDateFilter: isDateFilter)
         // на случай, если нет ни одного завершенного трекера и кнопка фильтр никогда не будет видна
         if selectedFilterType == .completed, completedTrackers.isEmpty {
             selectedFilterType = .all
-            categories = trackerService.getVisibleCategoriesForDate(date, recordTracker: completedTrackers, filter: filter)
+            makeViewVisible(isDateFilter: false)
         }
-        makeViewVisible(isDateFilter: true)
         collection.reloadData()
     }
     
@@ -205,7 +210,7 @@ final class TrackersViewController: UIViewController {
     @objc
     private func addTracker() {
         let createTrackerController = CreateTrackerController()
-        analyticsService.trackerEvent(name: "addTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"add_track"])
+        AnalyticsService.trackerEvent(name: "addTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"add_track"])
         let newNavController = UINavigationController(rootViewController: createTrackerController)
         navigationController?.present(newNavController, animated: true)
         
@@ -217,13 +222,24 @@ final class TrackersViewController: UIViewController {
         guard let selectedDate else { return }
         currentDate = selectedDate
         updateVisibleCategoryForSelectedDay(selectedDate, filter: selectedFilterType)
+        // если нужен фильтр "трекеры на сегодня", то заглушка пустого поиска для пустого трекера нужна только в этот день
+        if selectedFilterType == .today {
+            if selectedDate != Date().ignoringTime {
+                makeViewVisible(isDateFilter: true)
+                collection.reloadData()
+            } else {
+                makeViewVisible(isDateFilter: false)
+                collection.reloadData()
+            }
+        }
+        
     }
     
     @objc
     private func filterButtonTapped() {
         let filterVC = FilterViewController()
         filterVC.delegate = self
-        analyticsService.trackerEvent(name: "filterTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"filter"])
+        AnalyticsService.trackerEvent(name: "filterTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"filter"])
         let newNavController = UINavigationController(rootViewController: filterVC)
         navigationController?.present(newNavController, animated: true)
     }
@@ -350,7 +366,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
             trackerService.deleteTracker(categories[indexPath.section].trackers[indexPath.row])
             trackerService.deleteAllRecords(categories[indexPath.section].trackers[indexPath.row])
             updateVisibleCategoryForSelectedDay(currentDate,filter: selectedFilterType)
-            analyticsService.trackerEvent(name: "deleteTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"delete"])
+            AnalyticsService.trackerEvent(name: "deleteTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"delete"])
             collection.reloadData()
         }
         
@@ -386,7 +402,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
             editEventVC.trackerForEdit(tracker: tracker, category: category, daysCompleted: completedDays)
         }
         
-        analyticsService.trackerEvent(name: "editTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"edit"])
+        AnalyticsService.trackerEvent(name: "editTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"edit"])
         let newNavController = UINavigationController(rootViewController: tracker.isHabit ? editHabbitVC : editEventVC)
         navigationController?.present(newNavController, animated: true)
     }
@@ -397,16 +413,15 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 
 extension TrackersViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        var isDateFilter = false
-        
+        var isDateFilterForSearch = false
         if let searchText = searchController.searchBar.text, !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             let searchResult = trackerService.getSearchedTrackers(searchText, filtered: categories)
             categories = searchResult
         } else {
             updateVisibleCategoryForSelectedDay(currentDate, filter: selectedFilterType)
-            isDateFilter = true
+            isDateFilterForSearch = isDateFilter
         }
-        makeViewVisible(isDateFilter: isDateFilter)
+        makeViewVisible(isDateFilter: isDateFilterForSearch)
         collection.reloadData()
     }
     
@@ -421,7 +436,7 @@ extension TrackersViewController: CompletedTrackerDelegate {
         let trackerRecord = TrackerRecord(id: id, date: date)
         trackerService.addRecord(trackerRecord)
         completedTrackers = trackerService.fetchRecords()
-        analyticsService.trackerEvent(name: "doneTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"track"])
+        AnalyticsService.trackerEvent(name: "doneTrackerButtonTaped", parameters: ["event":"click", "screen":"Main", "item":"track"])
         collection.reloadItems(at: [indexPath])
     }
     
@@ -451,18 +466,22 @@ extension TrackersViewController: FilterViewControllerDelegate {
         switch filter {
         case .all:
             selectedFilterType = .all
+            isDateFilter = true
             updateVisibleCategoryForSelectedDay(currentDate, filter: selectedFilterType)
         case .today:
             selectedFilterType = .today
             currentDate = Date()
             datePicker.setDate(currentDate, animated: true)
             updateVisibleCategoryForSelectedDay(currentDate, filter: selectedFilterType)
+            isDateFilter = false
         case .completed:
             selectedFilterType = .completed
+            isDateFilter = false
             updateVisibleCategoryForSelectedDay(currentDate, filter: selectedFilterType)
         case .uncompleted:
             selectedFilterType = .uncompleted
             updateVisibleCategoryForSelectedDay(currentDate, filter: selectedFilterType)
+            isDateFilter = false
         }
     }
     

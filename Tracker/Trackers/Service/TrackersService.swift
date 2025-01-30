@@ -92,20 +92,6 @@ final class TrackersService {
     }
     
     func updateTracker(_ tracker: Tracker) {
-//        let category = fetchCategories().compactMap { category -> TrackerCategory in
-//            if category.trackers.contains(where: {$0.id == tracker.id}) {
-//                trackerStore.updateTracker(tracker: tracker)
-//            }
-//        }
-        
-//        fetchCategories().forEach { category in
-//            if category.trackers.contains(where: {$0.id == tracker.id}) {
-//                trackerStore.updateTracker(tracker: tracker)
-//            } else {
-//                addTracker(tracker: tracker, for: <#T##String#>)
-//            }
-//            
-//        }
         trackerStore.updateTracker(tracker: tracker)
         delegate?.updateTrackers()
     }
