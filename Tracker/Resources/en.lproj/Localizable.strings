@@ -1,0 +1,46 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Olga Trofimova on 18.01.2025.
+  
+*/
+
+// Onboarding
+
+"buttonTitle" = "Now that's technology!";
+"firstOnboardingTitle" = "Track only what you want";
+"secondOnboardingTitle" = "Even if it's not liters of water and yoga";
+
+// Main Tracker
+
+"trackers.navigationItem.title" = "Trackers";
+"statistics.navigationItem.title" = "Statistics";
+
+"emptyTrackersLabel" = "What are we going to track?";
+"emptySearchOrFilterLabel" = "Nothing found";
+
+"pinTitle" = "Pin";
+"unpinTitile" = "Unpin";
+"deleteTitile" = "Delete";
+"editTitile" = "Edit";
+"deleteActionSheetTitle" = "Are you sure you want to delete the tracker??";
+"deleteActionTitle" = "Delete";
+"cancelActionTitle" = "Cancel";
+"searchPlaceholderTitle" = "Search";
+"filterButton" = "Filters";
+
+// Create New Habbit
+
+// Create New Habbit
+
+// CategoriesList
+
+// CreateCategory
+
+// Schedule
+
+// Statistics
+
+"trackersCompleted" = "Trackers completed";
+

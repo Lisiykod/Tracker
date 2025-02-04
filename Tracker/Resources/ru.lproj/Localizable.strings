@@ -1,0 +1,45 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Olga Trofimova on 18.01.2025.
+  
+*/
+
+// Onboarding
+
+"buttonTitle" = "Вот это технологии!";
+"firstOnboardingTitle" = "Отслеживайте только то, что хотите";
+"secondOnboardingTitle" = "Даже если это не литры воды и йога";
+
+// Main Tracker
+
+"trackers.navigationItem.title" = "Трекеры";
+"statistics.navigationItem.title" = "Статистика";
+
+"emptyTrackersLabel" = "Что будем отслеживать?";
+"emptySearchOrFilterLabel" = "Ничего не найдено";
+
+"pinTitle" = "Закрепить";
+"unpinTitile" = "Открепить";
+"deleteTitile" = "Удалить";
+"editTitile" = "Редактировать";
+"deleteActionSheetTitle" = "Уверены что хотите удалить трекер?";
+"deleteActionTitle" = "Удалить";
+"cancelActionTitle" = "Отмена";
+"searchPlaceholderTitle" = "Поиск";
+"filterButton" = "Фильтры";
+
+// Create New Habbit
+
+// Create New Habbit
+
+// CategoriesList
+
+// CreateCategory
+
+// Schedule
+
+// Statistics
+
+"trackersCompleted" = "Трекеров завершено";

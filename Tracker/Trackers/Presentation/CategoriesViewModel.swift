@@ -38,4 +38,14 @@ final class CategoriesViewModel {
         return categories[index].title
     }
     
+    func updateCategory(oldTitle: String, with newTitle: String) {
+        guard let categoryForUpdate = categories.first(where: {$0.title == oldTitle}) else { return }
+        trackerService.updateCategory(categoryForUpdate.title, newTitle: newTitle)
+    }
+    
+    func deleteCategory(at index: Int) {
+        let category = categories[index]
+        trackerService.deleteCategory(category: category.title)
+    }
+    
 }

@@ -38,7 +38,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        label.textColor = .ypWhite
+        label.textColor = .white
         label.textAlignment = .left
         label.numberOfLines = 2
         return label
@@ -57,7 +57,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
     
     private lazy var backgroundEmojiView: UIView = {
         let view = UIView()
-        view.backgroundColor = .ypWhite.withAlphaComponent(0.3)
+        view.backgroundColor = .white.withAlphaComponent(0.3)
         view.layer.cornerRadius = 12
         return view
     }()
@@ -67,6 +67,13 @@ final class TrackerCollectionCell: UICollectionViewCell {
         label.textColor = .ypBlack
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         return label
+    }()
+    
+    private lazy var pinImageView: UIImageView = {
+        let image = UIImage(named: "pin_image")
+        let imageView = UIImageView(image: image)
+        imageView.contentMode = .scaleAspectFit
+        return imageView
     }()
     
     // MARK: - Life cycle
@@ -95,9 +102,8 @@ final class TrackerCollectionCell: UICollectionViewCell {
         emojiLabel.text = tracker.emoji
         self.isCompleted = isCompleted
         self.daysCount = daysCount
-        let dayWord = declension(of: daysCount)
-        dateLabel.text = "\(self.daysCount) \(dayWord)"
-        
+        dateLabel.text = String.localizedStringWithFormat(NSLocalizedString("numberOfDays", comment: "Text for number of days"), daysCount)
+
         let buttonImage = isCompleted ? UIImage(named: "done") : UIImage(systemName: "plus")
         plusButton.setImage(buttonImage, for: .normal)
         plusButton.alpha = isCompleted ?  0.3 : 1
@@ -110,12 +116,14 @@ final class TrackerCollectionCell: UICollectionViewCell {
         } else {
             plusButton.isHidden = false
         }
+        
+        pinImageView.isHidden = tracker.isPinned ? false : true
     }
     
     // MARK: - Private Methods
     private func setupView() {
         contentView.backgroundColor = .ypWhite
-        contentView.addSubviews([colorView, backgroundEmojiView, emojiLabel, titleLabel, dateLabel, plusButton])
+        contentView.addSubviews([colorView, backgroundEmojiView, emojiLabel, titleLabel, dateLabel, plusButton, pinImageView])
     }
     
     private func setupConstraints() {
@@ -146,27 +154,14 @@ final class TrackerCollectionCell: UICollectionViewCell {
             contentView.bottomAnchor.constraint(equalTo: plusButton.bottomAnchor, constant: 16),
             
             dateLabel.centerYAnchor.constraint(equalTo: plusButton.centerYAnchor),
-            dateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
+            dateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            
+            pinImageView.centerYAnchor.constraint(equalTo: backgroundEmojiView.centerYAnchor),
+            colorView.trailingAnchor.constraint(equalTo: pinImageView.trailingAnchor, constant: 4),
+            pinImageView.widthAnchor.constraint(equalToConstant: 24),
+            pinImageView.heightAnchor.constraint(equalToConstant: 24),
             
         ])
-    }
-    
-    private func declension(of day: Int) -> String {
-        let reminderOf10 = day % 10
-        let reminderOf100 = day % 100
-        
-        if reminderOf100 >= 11 && reminderOf100 <= 14 {
-            return "дней"
-        }
-        
-        switch reminderOf10 {
-        case 1:
-            return "день"
-        case 2...4:
-            return "дня"
-        default:
-            return "дней"
-        }
     }
     
     @objc

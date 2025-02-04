@@ -10,13 +10,16 @@ import UIKit
 final class OnboardingPageViewController: UIPageViewController {
     
     private lazy var pages: [UIViewController] = {
+        let firstOnboardingTitle = NSLocalizedString("firstOnboardingTitle", comment: "Text displayed on first onboarding page")
+        let secondOnboardingTitle = NSLocalizedString("secondOnboardingTitle", comment: "Text displayed on second onboarding page")
+        
         let pageOne = OnboardingViewController(
-            title: "Отслеживайте только то, что хотите",
+            title: firstOnboardingTitle,
             imageName: "onboarding_background1"
         )
         
         let pageTwo = OnboardingViewController(
-            title: "Даже если это не литры воды и йога",
+            title: secondOnboardingTitle,
             imageName: "onboarding_background2"
         )
         

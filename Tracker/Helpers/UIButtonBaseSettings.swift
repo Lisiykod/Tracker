@@ -13,7 +13,7 @@ extension UIButton {
         button.setTitle(titleForNormal, for: .normal)
         button.layer.cornerRadius = 16
         button.backgroundColor = .ypBlack
-        button.titleLabel?.textColor = .ypWhite
+        button.setTitleColor(.ypWhite, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
     }
 }

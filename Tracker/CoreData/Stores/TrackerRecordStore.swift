@@ -56,6 +56,16 @@ final class TrackerRecordStore {
         }
     }
     
+    func deleteAllRecords(_ tracker: Tracker) {
+        let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
+        request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+        let trackerRecordsFromCoreData = try? context.fetch(request)
+        if let recordForDelete = trackerRecordsFromCoreData?.first {
+            context.delete(recordForDelete)
+            DataBaseService.shared.saveContext()
+        }
+    }
+    
     // MARK: - Private Methods
     
     private func getRecord(from trackerRecordCoreData: TrackerRecordCoreData) throws -> TrackerRecord {
